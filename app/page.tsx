@@ -1,34 +1,43 @@
 import Link from "next/link";
-import { site, projects, interests } from "@/lib/content";
+import { site, projects, additionalProjects, interests } from "@/lib/content";
+import { HeroShader } from "@/components/hero-shader";
 
 export default function Home() {
   return (
     <>
       {/* Hero */}
-      <section className="wrap pt-20 pb-16 md:pt-28 md:pb-24">
-        <div className="max-w-3xl rise">
-          <p className="eyebrow mb-6">{site.role} — independent</p>
-          <h1 className="serif text-4xl leading-[1.08] sm:text-5xl md:text-6xl md:leading-[1.05]">
-            Software that custodies nothing it doesn&apos;t have to, and proves what it claims.
-          </h1>
-          <p className="mt-8 max-w-2xl text-base leading-relaxed text-[var(--color-muted)] md:text-lg">
-            {site.intro}
-          </p>
-          <div className="mt-10 flex flex-wrap items-center gap-3">
-            <Link href="/projects" className="btn btn-solid">
-              View projects
-            </Link>
-            <Link href="/security" className="btn btn-ghost">
-              Security work
-            </Link>
-            <a
-              href={site.links.github}
-              target="_blank"
-              rel="noreferrer noopener"
-              className="btn btn-ghost"
-            >
-              GitHub ↗
-            </a>
+      <section className="wrap pt-16 pb-16 md:pt-24 md:pb-24">
+        <div className="grid items-center gap-10 md:grid-cols-[1.05fr_0.95fr] md:gap-14 lg:gap-20">
+          {/* Left: introduction */}
+          <div className="rise order-1">
+            <p className="eyebrow mb-6">{site.role} — independent</p>
+            <h1 className="serif text-4xl leading-[1.08] sm:text-5xl md:leading-[1.04]">
+              Software that custodies nothing it doesn&apos;t have to, and proves what it claims.
+            </h1>
+            <p className="mt-7 max-w-xl text-base leading-relaxed text-[var(--color-muted)]">
+              {site.intro}
+            </p>
+            <div className="mt-9 flex flex-wrap items-center gap-3">
+              <Link href="/projects" className="btn btn-solid">
+                View projects
+              </Link>
+              <Link href="/security" className="btn btn-ghost">
+                Security work
+              </Link>
+              <a
+                href={site.links.github}
+                target="_blank"
+                rel="noreferrer noopener"
+                className="btn btn-ghost"
+              >
+                GitHub ↗
+              </a>
+            </div>
+          </div>
+
+          {/* Right (desktop) / below (mobile): particle-flow photograph */}
+          <div className="order-2">
+            <HeroShader src="/hero-cove-sm.jpg" />
           </div>
         </div>
       </section>
@@ -90,6 +99,52 @@ export default function Home() {
               </li>
             ))}
           </ol>
+        </div>
+      </section>
+
+      {/* Additional projects */}
+      <section className="wrap pb-8" id="more">
+        <div className="hairline pt-10">
+          <div className="rowgrid mb-8">
+            <p className="eyebrow">Additional projects</p>
+            <p className="max-w-xl text-sm leading-relaxed text-[var(--color-muted)]">
+              Production systems built around a data pipeline and a scoring or
+              verification model — shipped, and kept honest about what the model
+              is allowed to assert.
+            </p>
+          </div>
+
+          <ul className="grid gap-px overflow-hidden rounded-sm border bg-[var(--color-line)] sm:grid-cols-2">
+            {additionalProjects.map((p) => (
+              <li key={p.slug} className="bg-[var(--color-paper)]">
+                <Link
+                  href={`/projects#${p.slug}`}
+                  className="group flex h-full flex-col p-6 transition-colors hover:bg-[var(--color-panel)] md:p-7"
+                >
+                  <div className="flex items-baseline justify-between gap-4">
+                    <h3 className="serif text-xl md:text-2xl transition-colors group-hover:text-[var(--color-accent)]">
+                      {p.name}
+                    </h3>
+                    <span className="eyebrow shrink-0">{p.status}</span>
+                  </div>
+                  <p className="eyebrow mt-1">{p.kind}</p>
+                  <p className="mt-4 text-sm leading-relaxed text-[var(--color-muted)]">
+                    {p.summary}
+                  </p>
+                  <div className="mt-5 flex flex-wrap gap-1.5">
+                    {p.stack.map((s) => (
+                      <span key={s} className="chip">
+                        {s}
+                      </span>
+                    ))}
+                  </div>
+                  <span className="mt-5 inline-flex items-center gap-1 font-mono text-xs text-[var(--color-faint)] transition-colors group-hover:text-[var(--color-ink)]">
+                    Read the breakdown →
+                  </span>
+                </Link>
+              </li>
+            ))}
+          </ul>
         </div>
       </section>
 

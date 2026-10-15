@@ -329,3 +329,126 @@ export const methodology: string[] = [
   "Treat every boundary as adversarial input: the frontend, the SDK caller, third-party webhooks, and OAuth callbacks are all untrusted until verified server-side or on chain.",
   "Keep exploratory work labelled as exploratory. Implemented, tested controls are described as such; anything researched but not shipped is not presented as a guarantee.",
 ];
+
+// ---- Additional projects (/ and /projects) ----------------------------
+// Verified against private source. No repository links (repos are private);
+// no credentials, endpoints, or vendor keys are exposed.
+export const additionalProjects: Project[] = [
+  {
+    slug: "reddit-lead-radar",
+    name: "Reddit Lead Radar",
+    kind: "Lead intelligence",
+    year: "2026",
+    status: "Private",
+    summary:
+      "A B2B lead-intelligence pipeline that continuously collects Reddit posts and comments and surfaces high-intent leads for client businesses — through a deterministic keyword pass, then AI verification gated on service fit, intent, and location.",
+    stack: ["React", "Vite", "Base44", "Deno", "TanStack Query", "Recharts"],
+    highlights: [
+      "Two-stage filter: deterministic anchor/modifier keywords, then schema-constrained AI verification",
+      "Provider-abstracted collection on a scheduled day/night cadence, with dedup",
+      "Human-in-the-loop feedback recorded against every match decision",
+    ],
+  },
+  {
+    slug: "ticket-arbitrage",
+    name: "Ticket Arbitrage Intelligence",
+    kind: "Real-time market intelligence",
+    year: "2026",
+    status: "Private",
+    summary:
+      "A real-time price-intelligence pipeline that polls several ticket marketplaces for a curated event set, normalizes each platform's response into one comparison, and computes cross-market spreads — distinguishing genuine arbitrage from single-platform price analysis.",
+    stack: ["React", "Vite", "Base44", "Deno", "TanStack Query", "Recharts"],
+    highlights: [
+      "Normalizes four marketplace schemas into a single cross-market comparison",
+      "Arbitrage vs price-analysis signal with a bounded opportunity score",
+      "Time-series price snapshots, watchlists, and threshold alerts",
+    ],
+  },
+];
+
+export const additionalProjectDetails: Record<string, ProjectDetail> = {
+  "reddit-lead-radar": {
+    slug: "reddit-lead-radar",
+    overview:
+      "Reddit Lead Radar watches Reddit for people describing a problem a client business can solve, and turns that into a reviewed lead with a drafted reply. The engineering problem is signal: most of Reddit is noise, so the system spends deterministic work to shrink the candidate set before it spends a model call, and never lets the model invent a lead.",
+    facts: [
+      { label: "Domain", value: "B2B lead intelligence" },
+      { label: "Frontend", value: "React · Vite" },
+      { label: "Backend", value: "Base44 · Deno functions" },
+      { label: "Scheduling", value: "Interval + cron workflows" },
+      { label: "Status", value: "Private" },
+    ],
+    sections: [
+      {
+        heading: "Collection",
+        body: [
+          "Collection sits behind a provider interface, so the source can change without touching dedup, storage, or the matching pipeline. The current provider reaches Reddit through a commercial scraping proxy and parses old.reddit.com HTML, because Reddit blocks datacenter access to its JSON endpoints. Items are deduplicated against what has already been stored.",
+          "It runs on scheduled workflows with a day/night cadence — more frequent during waking hours, throttled overnight — so coverage stays current without hammering the source.",
+        ],
+      },
+      {
+        heading: "Two-stage matching",
+        body: [
+          "Stage one is deterministic and uses no model. Each client's keywords are split into anchor phrases (incident- or need-specific) and modifier terms (generic). A post qualifies as a candidate only if it contains at least one anchor; modifier-only matches are discarded as noise. This bounds both cost and false positives before any AI runs.",
+          "Stage two asks a model to verify — not assume — each candidate against a strict JSON schema: service fit read literally against the client's offerings, personal intent (the poster's own situation, not news or commentary), and location within the client's service area. It returns an intent score, a category with a confidence and a needs-review flag, a rejection reason when it declines, and a drafted reply. The prompt explicitly forbids inventing a lead or inferring a location that wasn't stated.",
+        ],
+      },
+      {
+        heading: "Human-in-the-loop",
+        body: [
+          "Every surfaced opportunity can be marked a good or bad match with a structured reason, and draft edits are recorded. That feedback is stored against the decision so match quality can be reviewed and tuned rather than trusted blindly.",
+        ],
+      },
+      {
+        heading: "Security posture",
+        body: [
+          "Provider keys and the user agent live in server-side environment configuration and never reach the browser. The app is behind authentication with protected routes and an OAuth consent flow, and data writes run under a service role on the backend. The deterministic pre-filter also serves a security purpose — it bounds how much untrusted scraped text ever reaches a model.",
+        ],
+      },
+    ],
+    note:
+      "Verified against private source. Repository, scraping vendor, and credentials are intentionally omitted; no audit or guarantee is claimed.",
+  },
+  "ticket-arbitrage": {
+    slug: "ticket-arbitrage",
+    overview:
+      "Ticket Arbitrage Intelligence answers one question in real time: for a given match, where is the same seat category cheapest across marketplaces, and is that gap a real arbitrage or just one platform's price? It does that by treating each marketplace as a different schema speaking about the same event, and reconciling them into a single comparison.",
+    facts: [
+      { label: "Domain", value: "Real-time price intelligence" },
+      { label: "Frontend", value: "React · Vite" },
+      { label: "Backend", value: "Base44 · Deno functions" },
+      { label: "Markets", value: "Four marketplaces, one aggregator" },
+      { label: "Status", value: "Private" },
+    ],
+    sections: [
+      {
+        heading: "Data pipeline",
+        body: [
+          "A scheduled sync function pulls pricing for a curated set of matches through a commercial ticket-data aggregator that fronts several marketplaces. Each marketplace returns a different response shape — different field names, different ways of expressing price and availability — so the function normalizes all of them into one internal record before any comparison happens.",
+          "The pull is quota-aware by design: the number of upstream calls per run is bounded, and the function is deliberately kept off code paths that would consume the wrong quota pool.",
+        ],
+      },
+      {
+        heading: "Signal model",
+        body: [
+          "For each match it computes the cheapest price, the market average, and the highest price across platforms, then derives the discount versus the market and versus the most expensive platform. A result is labelled Arbitrage only when at least two platforms priced the same thing — a real cross-market spread — and Price Analysis when only one did. An opportunity score combines the spread, how many platforms were compared, and the stage of the event, capped to a bounded range.",
+          "Every scan also writes a price snapshot, so each opportunity carries a time series rather than just a current number.",
+        ],
+      },
+      {
+        heading: "Live context",
+        body: [
+          "A separate server-side proxy normalizes a third-party live-match feed — status, clock, and scorers — into a clean shape for the interface. Keeping it on the server means the browser never talks to that upstream directly, and the app only ever sees a small, sanitized payload.",
+        ],
+      },
+      {
+        heading: "Security posture",
+        body: [
+          "Aggregator and upstream keys stay in server-side environment configuration; the client receives only normalized results. The live-feed proxy isolates an untrusted third-party source behind the backend. The app is behind authentication with protected routes and an OAuth consent flow.",
+        ],
+      },
+    ],
+    note:
+      "Verified against private source. Repository, data vendors, and internal endpoints are intentionally omitted; no audit or guarantee is claimed.",
+  },
+};
