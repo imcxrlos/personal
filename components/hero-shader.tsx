@@ -73,11 +73,7 @@ export function HeroShader({ src }: Props) {
   }, [enhanced, imgLoaded]);
 
   return (
-    <div
-      ref={frameRef}
-      className="relative w-full overflow-hidden rounded-sm border border-[var(--color-line)] bg-[var(--color-panel)]"
-      style={{ aspectRatio: "2 / 1" }}
-    >
+    <div ref={frameRef} className="absolute inset-0 overflow-hidden bg-[var(--color-paper)]">
       {/* Static photograph — fallback, and the base layer during load. */}
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
@@ -89,15 +85,11 @@ export function HeroShader({ src }: Props) {
         style={{ opacity: fadeStatic ? 0 : 1 }}
         draggable={false}
       />
-      {enhanced && imgLoaded ? <FlowField image={src} className="" /> : null}
-      {/* Hairline inner edge for a restrained framed feel. */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 rounded-sm"
-        style={{ boxShadow: "inset 0 0 0 1px rgba(22,23,26,0.04)" }}
-      />
+      {enhanced && imgLoaded ? (
+        <FlowField image={src} cols={170} className="" />
+      ) : null}
       {enhanced ? (
-        <span className="pointer-events-none absolute bottom-2 right-2.5 font-mono text-[10px] uppercase tracking-[0.14em] text-white/70 mix-blend-difference">
+        <span className="pointer-events-none absolute bottom-3 right-4 font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--color-ink)]/45">
           Move your pointer across the water
         </span>
       ) : null}

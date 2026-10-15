@@ -5,16 +5,40 @@ import { HeroShader } from "@/components/hero-shader";
 export default function Home() {
   return (
     <>
-      {/* Hero */}
-      <section className="wrap pt-16 pb-16 md:pt-24 md:pb-24">
-        <div className="grid items-center gap-10 md:grid-cols-[1.05fr_0.95fr] md:gap-14 lg:gap-20">
-          {/* Left: introduction */}
-          <div className="rise order-1">
+      {/* Hero — the particle cove fills the whole hero; text sits over it. */}
+      <section className="relative isolate flex min-h-[86svh] items-center overflow-hidden border-b md:min-h-[82vh]">
+        {/* Full-bleed background: interactive particle photograph */}
+        <HeroShader src="/hero-cove-sm.jpg" />
+
+        {/* White veil — keeps the type legible and preserves the editorial feel.
+            Desktop: strong at top-left (behind the text), clearing toward the
+            lower right so the cove reads as part of the page, not a boxed image. */}
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 hidden md:block"
+          style={{
+            background:
+              "linear-gradient(104deg, rgba(255,255,255,0.98) 0%, rgba(255,255,255,0.95) 34%, rgba(255,255,255,0.78) 48%, rgba(255,255,255,0.3) 64%, rgba(255,255,255,0) 82%), linear-gradient(0deg, rgba(255,255,255,0.82) 0%, rgba(255,255,255,0) 30%)",
+          }}
+        />
+        {/* Mobile: vertical veil — text stays over white up top, cove emerges below. */}
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 md:hidden"
+          style={{
+            background:
+              "linear-gradient(180deg, rgba(255,255,255,0.97) 0%, rgba(255,255,255,0.93) 48%, rgba(255,255,255,0.72) 64%, rgba(255,255,255,0.3) 80%, rgba(255,255,255,0) 96%)",
+          }}
+        />
+
+        {/* Text */}
+        <div className="wrap relative z-10 py-16 md:py-0">
+          <div className="rise max-w-2xl">
             <p className="eyebrow mb-6">{site.role} — independent</p>
-            <h1 className="serif text-4xl leading-[1.08] sm:text-5xl md:leading-[1.04]">
+            <h1 className="serif text-4xl leading-[1.08] sm:text-5xl md:text-6xl md:leading-[1.03]">
               Software that custodies nothing it doesn&apos;t have to, and proves what it claims.
             </h1>
-            <p className="mt-7 max-w-xl text-base leading-relaxed text-[var(--color-muted)]">
+            <p className="mt-7 max-w-md text-base leading-relaxed text-[var(--color-muted)]">
               {site.intro}
             </p>
             <div className="mt-9 flex flex-wrap items-center gap-3">
@@ -33,11 +57,6 @@ export default function Home() {
                 GitHub ↗
               </a>
             </div>
-          </div>
-
-          {/* Right (desktop) / below (mobile): particle-flow photograph */}
-          <div className="order-2">
-            <HeroShader src="/hero-cove-sm.jpg" />
           </div>
         </div>
       </section>
