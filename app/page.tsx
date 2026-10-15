@@ -5,50 +5,55 @@ import { HeroShader } from "@/components/hero-shader";
 export default function Home() {
   return (
     <>
-      {/* Hero — centered type over the full-bleed particle cove, which reads
-          as a full-width band beneath the text. */}
-      <section className="relative isolate flex min-h-[92svh] items-start overflow-hidden border-b pt-24 md:min-h-[90vh] md:pt-32">
-        {/* Full-bleed background: interactive particle photograph */}
-        <HeroShader src="/hero-cove-sm.jpg" />
+      {/* Hero — the WHOLE photograph at its natural proportions. Desktop: text
+          centered over the white sky, the cove below. Mobile: text, then the
+          full image. The image is never cropped or zoomed. */}
+      <section className="relative isolate flex flex-col overflow-hidden border-b md:block">
+        {/* Text */}
+        <div className="order-1 md:pointer-events-none md:absolute md:inset-x-0 md:top-0 md:z-10">
+          <div className="wrap pt-14 pb-8 md:pb-0 md:pt-[8vh] lg:pt-[10vh]">
+            <div className="rise mx-auto flex max-w-3xl flex-col items-center text-center md:pointer-events-auto">
+              <p className="eyebrow mb-6">{site.role} — independent</p>
+              <h1 className="serif text-4xl leading-[1.08] sm:text-5xl md:text-6xl md:leading-[1.03]">
+                Software that custodies nothing it doesn&apos;t have to, and proves what it claims.
+              </h1>
+              <p className="mt-7 max-w-xl text-base leading-relaxed text-[var(--color-muted)] md:text-lg">
+                {site.intro}
+              </p>
+              <div className="mt-9 flex flex-wrap items-center justify-center gap-3">
+                <Link href="/projects" className="btn btn-solid">
+                  View projects
+                </Link>
+                <Link href="/security" className="btn btn-ghost">
+                  Security work
+                </Link>
+                <a
+                  href={site.links.github}
+                  target="_blank"
+                  rel="noreferrer noopener"
+                  className="btn btn-ghost"
+                >
+                  GitHub ↗
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
 
-        {/* White veil — a soft halo behind the centered type keeps it legible,
-            while the cove reads clearly around and below it. */}
+        {/* Soft white veil over the upper band so the type stays legible where
+            it meets the water (desktop only; the sky is already white). */}
         <div
           aria-hidden
-          className="pointer-events-none absolute inset-0"
+          className="pointer-events-none absolute inset-x-0 top-0 z-[5] hidden h-[62%] md:block"
           style={{
             background:
-              "radial-gradient(115% 82% at 50% 40%, rgba(255,255,255,0.98) 0%, rgba(255,255,255,0.96) 36%, rgba(255,255,255,0.74) 55%, rgba(255,255,255,0.32) 72%, rgba(255,255,255,0) 90%)",
+              "linear-gradient(180deg, rgba(255,255,255,0.85) 0%, rgba(255,255,255,0.7) 40%, rgba(255,255,255,0.25) 72%, rgba(255,255,255,0) 100%)",
           }}
         />
 
-        {/* Text — centered */}
-        <div className="wrap relative z-10 w-full">
-          <div className="rise mx-auto flex max-w-3xl flex-col items-center text-center">
-            <p className="eyebrow mb-6">{site.role} — independent</p>
-            <h1 className="serif text-4xl leading-[1.08] sm:text-5xl md:text-6xl md:leading-[1.03]">
-              Software that custodies nothing it doesn&apos;t have to, and proves what it claims.
-            </h1>
-            <p className="mt-7 max-w-xl text-base leading-relaxed text-[var(--color-muted)] md:text-lg">
-              {site.intro}
-            </p>
-            <div className="mt-9 flex flex-wrap items-center justify-center gap-3">
-              <Link href="/projects" className="btn btn-solid">
-                View projects
-              </Link>
-              <Link href="/security" className="btn btn-ghost">
-                Security work
-              </Link>
-              <a
-                href={site.links.github}
-                target="_blank"
-                rel="noreferrer noopener"
-                className="btn btn-ghost"
-              >
-                GitHub ↗
-              </a>
-            </div>
-          </div>
+        {/* The whole image, natural aspect, full width */}
+        <div className="relative order-2 aspect-[1600/1138] w-full">
+          <HeroShader src="/hero-cove.jpg" />
         </div>
       </section>
 
