@@ -24,12 +24,18 @@ export function createAnimatedTexture(url: string): AnimatedTexture {
   const img = new Image();
   img.decoding = "async";
   img.crossOrigin = "anonymous";
-  img.onload = () => {
-    if (disposed) return;
+  const apply = () => {
+    if (disposed || img.naturalWidth < 1) return;
     texture.image = img;
     texture.needsUpdate = true;
   };
+  img.onload = apply;
   img.src = url;
+  // A cached image can be `complete` before onload is attached or fires, in
+  // which case onload never runs and the texture would keep its 1x1 placeholder
+  // — making the shader's cover-fit default to a square crop (a false "zoom").
+  // Apply immediately when the image is already decoded.
+  if (img.complete && img.naturalWidth > 0) apply();
 
   return {
     texture,

@@ -80,10 +80,15 @@ type Props = {
   dpr?: number;
   /** Particle grid columns; rows are derived from the frame aspect. */
   cols?: number;
+  /** Fires once the texture's real dimensions are known and a correct
+   *  (non-cropped) frame has been rendered. */
+  onReady?: () => void;
 };
 
-const FlowField = ({ image, className, dpr = 1.5, cols = 136 }: Props) => {
+const FlowField = ({ image, className, dpr = 1.5, cols = 136, onReady }: Props) => {
   const containerRef = useRef<HTMLDivElement>(null);
+  const onReadyRef = useRef(onReady);
+  onReadyRef.current = onReady;
 
   useEffect(() => {
     const container = containerRef.current;
@@ -237,13 +242,26 @@ const FlowField = ({ image, className, dpr = 1.5, cols = 136 }: Props) => {
       positionAttr.needsUpdate = true;
     };
 
+    let readyFired = false;
     const render = () => {
       if (contextLost) return;
-      const img = animated.texture.image as { width: number; height: number };
-      if (img && img.width > 1) {
-        uniforms.uImageResolution.value.set(img.width, img.height);
-      }
+      const img = animated.texture.image as {
+        width: number;
+        height: number;
+        naturalWidth?: number;
+        naturalHeight?: number;
+      };
+      // Prefer intrinsic dimensions (an HTMLImageElement) over the 1x1
+      // placeholder, so cover-fit uses the real image aspect — never a crop.
+      const iw = img?.naturalWidth || img?.width || 1;
+      const ih = img?.naturalHeight || img?.height || 1;
+      const haveImage = iw > 1 && ih > 1;
+      if (haveImage) uniforms.uImageResolution.value.set(iw, ih);
       renderer.render(scene, camera);
+      if (haveImage && !readyFired) {
+        readyFired = true;
+        onReadyRef.current?.();
+      }
     };
 
     let shaderTime = 0;

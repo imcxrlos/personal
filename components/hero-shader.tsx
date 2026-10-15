@@ -64,13 +64,9 @@ export function HeroShader({ src }: Props) {
     setEnhanced(true);
   }, []);
 
-  // Once the effect is mounted and its texture has had a moment to warm up,
-  // fade the static photo out so only the particles remain (no blank gap).
-  useEffect(() => {
-    if (!(enhanced && imgLoaded)) return;
-    const id = window.setTimeout(() => setFadeStatic(true), 450);
-    return () => window.clearTimeout(id);
-  }, [enhanced, imgLoaded]);
+  // The static photo fades out only once the shader reports it has rendered the
+  // real image (correct dimensions) — never on a blind timer, so the shader can
+  // never be revealed while still showing a placeholder/cropped frame.
 
   return (
     <div ref={frameRef} className="absolute inset-0 overflow-hidden bg-[var(--color-paper)]">
@@ -86,7 +82,13 @@ export function HeroShader({ src }: Props) {
         draggable={false}
       />
       {enhanced && imgLoaded ? (
-        <FlowField image={src} cols={210} dpr={2} className="" />
+        <FlowField
+          image={src}
+          cols={210}
+          dpr={2}
+          className=""
+          onReady={() => setFadeStatic(true)}
+        />
       ) : null}
       {enhanced ? (
         <span className="pointer-events-none absolute bottom-3 right-4 font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--color-ink)]/45">
