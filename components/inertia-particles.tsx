@@ -51,19 +51,25 @@ type Props = {
   image: string;
   className?: string;
   dpr?: number;
+  /** Optional overrides; by default the grid is derived from the frame size. */
   cols?: number;
   rows?: number;
   pointScale?: number;
   onReady?: () => void;
 };
 
+/** Spacing between particles, in CSS px. Smaller = finer grain. */
+const TARGET_PITCH = 6;
+/** Upper bound on particle count, to keep the CPU step at 60fps. */
+const MAX_PARTICLES = 48000;
+
 const InertiaParticles = ({
   image,
   className,
   dpr = 2,
-  cols = 140,
-  rows = 80,
-  pointScale = 1.2,
+  cols,
+  rows,
+  pointScale = 1.3,
   onReady,
 }: Props) => {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -74,8 +80,24 @@ const InertiaParticles = ({
     const container = containerRef.current;
     if (!container) return;
 
-    const COLS = Math.max(24, Math.round(cols));
-    const ROWS = Math.max(16, Math.round(rows));
+    // The grid is sized to the container, not fixed: a fixed 140x80 grid is
+    // far too coarse on a full-width hero (~11px between particles) and its
+    // cells are only square at one aspect ratio — at any other, the rows stop
+    // touching and the image bands. Derive columns from a target pitch and
+    // rows from the real aspect so cells stay square at any hero size.
+    const frameW = container.clientWidth || 1200;
+    const frameH = container.clientHeight || 800;
+    const aspect = frameW / frameH;
+
+    let COLS = cols ?? Math.round(frameW / TARGET_PITCH);
+    COLS = Math.max(60, Math.min(COLS, 340));
+    let ROWS = rows ?? Math.round(COLS / aspect);
+    ROWS = Math.max(16, ROWS);
+    if (COLS * ROWS > MAX_PARTICLES) {
+      const k = Math.sqrt(MAX_PARTICLES / (COLS * ROWS));
+      COLS = Math.max(60, Math.round(COLS * k));
+      ROWS = Math.max(16, Math.round(ROWS * k));
+    }
 
     const camera = new THREE.Camera();
     const scene = new THREE.Scene();
