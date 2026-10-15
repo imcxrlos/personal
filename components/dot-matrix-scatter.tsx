@@ -2,9 +2,7 @@
 
 /**
  * An LED / halftone dot grid of the image — move the cursor to scatter the dots
- * into a dispersing cloud. Adapted for a light page: the dots carry the image
- * colour and the gaps are transparent, so the white background shows through
- * (bright areas like the sky simply fade to white).
+ * into a dispersing cloud. Glowing dots on a dark field (as in the reference).
  */
 
 import ImageShaderCanvas from "./image-shader-canvas";

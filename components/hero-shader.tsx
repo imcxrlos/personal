@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 
 // Three.js + the effect load only on the client, on demand, as a separate chunk.
-const DotMatrixScatter = dynamic(() => import("./dot-matrix-scatter"), {
+const InertiaParticles = dynamic(() => import("./inertia-particles"), {
   ssr: false,
 });
 
@@ -84,7 +84,7 @@ export function HeroShader({ src }: Props) {
         draggable={false}
       />
       {enhanced && imgLoaded ? (
-        <DotMatrixScatter
+        <InertiaParticles
           image={src}
           className=""
           onReady={() => setFadeStatic(true)}
@@ -92,7 +92,7 @@ export function HeroShader({ src }: Props) {
       ) : null}
       {enhanced ? (
         <span className="pointer-events-none absolute bottom-3 right-4 font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--color-ink)]/45">
-          Move your cursor to scatter the dots
+          Move your cursor through the cove
         </span>
       ) : null}
     </div>
