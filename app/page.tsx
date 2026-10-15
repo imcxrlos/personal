@@ -11,16 +11,16 @@ export default function Home() {
       <section className="relative isolate flex flex-col overflow-hidden border-b md:block">
         {/* Text */}
         <div className="order-1 md:pointer-events-none md:absolute md:inset-x-0 md:top-0 md:z-10">
-          <div className="wrap pt-14 pb-8 md:pb-0 md:pt-[8vh] lg:pt-[10vh]">
+          <div className="wrap pt-14 pb-8 md:pb-0 md:pt-[4.5vh] lg:pt-[6vh]">
             <div className="rise mx-auto flex max-w-3xl flex-col items-center text-center md:pointer-events-auto">
-              <p className="eyebrow mb-6">{site.role} — independent</p>
-              <h1 className="serif text-4xl leading-[1.08] sm:text-5xl md:text-6xl md:leading-[1.03]">
+              <p className="eyebrow mb-5">{site.role} — independent</p>
+              <h1 className="serif text-4xl leading-[1.08] sm:text-5xl md:leading-[1.04]">
                 Software that custodies nothing it doesn&apos;t have to, and proves what it claims.
               </h1>
-              <p className="mt-7 max-w-xl text-base leading-relaxed text-[var(--color-muted)] md:text-lg">
+              <p className="mt-6 max-w-xl text-base leading-relaxed text-[var(--color-muted)]">
                 {site.intro}
               </p>
-              <div className="mt-9 flex flex-wrap items-center justify-center gap-3">
+              <div className="mt-7 flex flex-wrap items-center justify-center gap-3">
                 <Link href="/projects" className="btn btn-solid">
                   View projects
                 </Link>
@@ -44,15 +44,15 @@ export default function Home() {
             it meets the water (desktop only; the sky is already white). */}
         <div
           aria-hidden
-          className="pointer-events-none absolute inset-x-0 top-0 z-[5] hidden h-[62%] md:block"
+          className="pointer-events-none absolute inset-x-0 top-0 z-[5] hidden h-[72%] md:block"
           style={{
             background:
-              "linear-gradient(180deg, rgba(255,255,255,0.85) 0%, rgba(255,255,255,0.7) 40%, rgba(255,255,255,0.25) 72%, rgba(255,255,255,0) 100%)",
+              "linear-gradient(180deg, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.82) 42%, rgba(255,255,255,0.5) 66%, rgba(255,255,255,0.18) 85%, rgba(255,255,255,0) 100%)",
           }}
         />
 
-        {/* The whole image, natural aspect, full width */}
-        <div className="relative order-2 aspect-[1600/1138] w-full">
+        {/* The whole image, natural aspect, bounded to the viewport height */}
+        <div className="hero-fit relative order-2 aspect-[1600/1138] w-full">
           <HeroShader src="/hero-cove.jpg" />
         </div>
       </section>
