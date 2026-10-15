@@ -1,17 +1,21 @@
 "use client";
 
 /**
- * Move the cursor to shove the particles aside — a damped spring snaps them
- * back. Particles sample the photograph; gaps are transparent so the page
- * shows through.
+ * The photograph rendered as a dense field of fine particles. Move the cursor
+ * to shove them aside; a damped spring snaps them back.
  *
- * Adapted from the reference effect, which hardcodes a 140x80 grid sized for a
- * small demo box. That is far too coarse on a full-width hero, and its cells
- * are only square at one aspect ratio. Here the grid is derived from the
- * container (columns from a target pitch, rows from the real aspect) and is
- * rebuilt whenever the container resizes — so it can never get stuck at a
- * coarse size it was mounted with. Physics, shaders and spring values are
- * unchanged from the reference.
+ * Adapted from the reference effect rather than copied: the reference uses a
+ * fixed 140x80 grid with large points, which on a full-width hero reads as
+ * coarse blocks instead of a photograph. Here the grid is derived from the
+ * container at a fine pitch (particles far smaller than the reference's) and
+ * is rebuilt on resize, so the hero reads as the original picture.
+ *
+ * Density that fine is only affordable because the simulation is sparse: at
+ * rest nothing moves, so no integration and no buffer upload happen at all;
+ * while the cursor is in the frame, only the particles inside the disturbed
+ * region are integrated and only those rows are uploaded to the GPU.
+ *
+ * Spring physics and shaders are unchanged from the reference.
  */
 
 import { useEffect, useRef } from "react";
@@ -54,10 +58,13 @@ const FRAGMENT_SHADER = /* glsl */ `
   }
 `;
 
-/** Spacing between particles, in CSS px. Smaller = finer grain. */
-const TARGET_PITCH = 6;
-/** Upper bound on particle count, to keep the CPU step at 60fps. */
-const MAX_PARTICLES = 64000;
+/** Spacing between particles, in CSS px. Small = reads as the photograph. */
+const TARGET_PITCH = 3;
+/** Upper bound on particle count. */
+const MAX_PARTICLES = 220000;
+/** Settled thresholds, in clip-space units. */
+const EPS_POS = 1e-4;
+const EPS_VEL = 1e-3;
 
 type Props = {
   image: string;
@@ -71,7 +78,7 @@ const InertiaParticles = ({
   image,
   className,
   dpr = 2,
-  pointScale = 1.3,
+  pointScale = 1.25,
   onReady,
 }: Props) => {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -97,14 +104,42 @@ const InertiaParticles = ({
     let velY = new Float32Array(0);
     let positionAttr: THREE.BufferAttribute | null = null;
 
+    // Region of the grid that currently holds displaced particles.
+    let aI0 = 0;
+    let aI1 = -1;
+    let aJ0 = 0;
+    let aJ1 = -1;
+    const hasActive = () => aI1 >= aI0 && aJ1 >= aJ0;
+    const clearActive = () => {
+      aI0 = 0;
+      aI1 = -1;
+      aJ0 = 0;
+      aJ1 = -1;
+    };
+    const unionActive = (i0: number, i1: number, j0: number, j1: number) => {
+      if (!hasActive()) {
+        aI0 = i0;
+        aI1 = i1;
+        aJ0 = j0;
+        aJ1 = j1;
+        return;
+      }
+      if (i0 < aI0) aI0 = i0;
+      if (i1 > aI1) aI1 = i1;
+      if (j0 < aJ0) aJ0 = j0;
+      if (j1 > aJ1) aJ1 = j1;
+    };
+
+    let needsRender = true;
+
     const idealGrid = (w: number, h: number) => {
       const aspect = w / h;
-      let c = Math.max(60, Math.min(Math.round(w / TARGET_PITCH), 340));
-      let r = Math.max(16, Math.round(c / aspect));
+      let c = Math.max(80, Math.round(w / TARGET_PITCH));
+      let r = Math.max(24, Math.round(c / aspect));
       if (c * r > MAX_PARTICLES) {
         const k = Math.sqrt(MAX_PARTICLES / (c * r));
-        c = Math.max(60, Math.round(c * k));
-        r = Math.max(16, Math.round(r * k));
+        c = Math.max(80, Math.round(c * k));
+        r = Math.max(24, Math.round(r * k));
       }
       return { c, r };
     };
@@ -121,11 +156,11 @@ const InertiaParticles = ({
       velY = new Float32Array(count);
       let p = 0;
       for (let j = 0; j < ROWS; j++) {
+        const v = (j + 0.5) / ROWS;
+        const y = v * 2 - 1;
         for (let i = 0; i < COLS; i++) {
           const u = (i + 0.5) / COLS;
-          const v = (j + 0.5) / ROWS;
           const x = u * 2 - 1;
-          const y = v * 2 - 1;
           homeX[p] = x;
           homeY[p] = y;
           positions[p * 3] = x;
@@ -142,6 +177,8 @@ const InertiaParticles = ({
       geometry.setAttribute("aUv", new THREE.BufferAttribute(uvs, 2));
       geometry.setDrawRange(0, count);
       uniforms.uCols.value = COLS;
+      clearActive();
+      needsRender = true;
     };
 
     const animated = createAnimatedTexture(image);
@@ -195,6 +232,7 @@ const InertiaParticles = ({
     };
     const onContextRestored = () => {
       contextLost = false;
+      needsRender = true;
       last = performance.now();
     };
     canvas.addEventListener("webglcontextlost", onContextLost);
@@ -222,35 +260,90 @@ const InertiaParticles = ({
       const mx = mouse.x;
       const my = mouse.y;
       const r2 = radius * radius;
-      for (let i = 0; i < count; i++) {
-        const px = positions[i * 3];
-        const py = positions[i * 3 + 1];
 
-        let ax = (homeX[i] - px) * stiffness;
-        let ay = (homeY[i] - py) * stiffness;
+      // Mark the region the cursor can reach as active.
+      if (hasMouse) {
+        const halfX = radius / aspect;
+        const i0 = Math.max(0, Math.floor(((mx - halfX + 1) / 2) * COLS) - 2);
+        const i1 = Math.min(COLS - 1, Math.ceil(((mx + halfX + 1) / 2) * COLS) + 2);
+        const j0 = Math.max(0, Math.floor(((my - radius + 1) / 2) * ROWS) - 2);
+        const j1 = Math.min(ROWS - 1, Math.ceil(((my + radius + 1) / 2) * ROWS) + 2);
+        if (i1 >= i0 && j1 >= j0) unionActive(i0, i1, j0, j1);
+      }
 
-        if (hasMouse) {
-          const ex = px - mx;
-          const ey = py - my;
-          const exa = ex * aspect;
-          const d2 = exa * exa + ey * ey;
-          if (d2 < r2) {
-            const dist = Math.sqrt(d2) + 1e-4;
-            const f = 1 - dist / radius;
-            const push = (f * f * force) / dist;
-            ax += ex * push;
-            ay += ey * push;
+      // Nothing displaced and nothing being pushed: no work, no upload.
+      if (!hasActive()) return;
+
+      let moving = false;
+      for (let j = aJ0; j <= aJ1; j++) {
+        const rowBase = j * COLS;
+        for (let i = aI0; i <= aI1; i++) {
+          const idx = rowBase + i;
+          const o = idx * 3;
+          const px = positions[o];
+          const py = positions[o + 1];
+
+          let ax = (homeX[idx] - px) * stiffness;
+          let ay = (homeY[idx] - py) * stiffness;
+
+          if (hasMouse) {
+            const ex = px - mx;
+            const ey = py - my;
+            const exa = ex * aspect;
+            const d2 = exa * exa + ey * ey;
+            if (d2 < r2) {
+              const dist = Math.sqrt(d2) + 1e-4;
+              const f = 1 - dist / radius;
+              const push = (f * f * force) / dist;
+              ax += ex * push;
+              ay += ey * push;
+            }
+          }
+
+          const vx = (velX[idx] + ax * dt) * damp;
+          const vy = (velY[idx] + ay * dt) * damp;
+          velX[idx] = vx;
+          velY[idx] = vy;
+          const nx = px + vx * dt;
+          const ny = py + vy * dt;
+          positions[o] = nx;
+          positions[o + 1] = ny;
+
+          if (
+            !moving &&
+            (Math.abs(nx - homeX[idx]) > EPS_POS ||
+              Math.abs(ny - homeY[idx]) > EPS_POS ||
+              Math.abs(vx) > EPS_VEL ||
+              Math.abs(vy) > EPS_VEL)
+          ) {
+            moving = true;
           }
         }
-
-        const vx = (velX[i] + ax * dt) * damp;
-        const vy = (velY[i] + ay * dt) * damp;
-        velX[i] = vx;
-        velY[i] = vy;
-        positions[i * 3] = px + vx * dt;
-        positions[i * 3 + 1] = py + vy * dt;
       }
+
+      // Upload only the rows that changed.
+      const start = aJ0 * COLS * 3;
+      const len = (aJ1 - aJ0 + 1) * COLS * 3;
+      positionAttr.clearUpdateRanges();
+      positionAttr.addUpdateRange(start, len);
       positionAttr.needsUpdate = true;
+      needsRender = true;
+
+      // Everything settled and the cursor is gone: snap home and go idle.
+      if (!moving && !hasMouse) {
+        for (let j = aJ0; j <= aJ1; j++) {
+          const rowBase = j * COLS;
+          for (let i = aI0; i <= aI1; i++) {
+            const idx = rowBase + i;
+            const o = idx * 3;
+            positions[o] = homeX[idx];
+            positions[o + 1] = homeY[idx];
+            velX[idx] = 0;
+            velY[idx] = 0;
+          }
+        }
+        clearActive();
+      }
     };
 
     let readyFired = false;
@@ -281,9 +374,15 @@ const InertiaParticles = ({
       last = now;
       const res = uniforms.uResolution.value;
       step(dt, res.y > 0 ? res.x / res.y : 1);
-      render();
+      // Keep drawing until the texture has landed, then only on change.
+      if (!readyFired) needsRender = true;
+      if (needsRender || hasActive()) {
+        render();
+        needsRender = false;
+      }
     };
 
+    let rebuildTimer = 0;
     const resize = () => {
       const w = container.clientWidth;
       const h = container.clientHeight;
@@ -293,10 +392,23 @@ const InertiaParticles = ({
         renderer.domElement.width,
         renderer.domElement.height,
       );
-      // Rebuild the grid if the frame no longer matches it — this is what keeps
-      // the particles from being stuck at whatever size they were mounted at.
+      needsRender = true;
       const { c, r } = idealGrid(w, h);
-      if (c !== COLS || r !== ROWS) buildGrid(c, r);
+      if (c !== COLS || r !== ROWS) {
+        // Debounced: building a few hundred thousand particles mid-drag would jank.
+        window.clearTimeout(rebuildTimer);
+        if (!count) {
+          buildGrid(c, r);
+        } else {
+          rebuildTimer = window.setTimeout(() => {
+            const w2 = container.clientWidth;
+            const h2 = container.clientHeight;
+            if (!w2 || !h2) return;
+            const next = idealGrid(w2, h2);
+            if (next.c !== COLS || next.r !== ROWS) buildGrid(next.c, next.r);
+          }, 180);
+        }
+      }
       render();
     };
     resize();
@@ -330,6 +442,7 @@ const InertiaParticles = ({
 
     return () => {
       cancelAnimationFrame(raf);
+      window.clearTimeout(rebuildTimer);
       resizeObserver.disconnect();
       intersectionObserver.disconnect();
       document.removeEventListener("visibilitychange", onVisibility);
