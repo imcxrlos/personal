@@ -53,7 +53,9 @@ const FRAGMENT_SHADER = /* glsl */ `
     vec2 pc = gl_PointCoord - 0.5;
     if (length(pc) > 0.5) discard;
     vec3 col = texture2D(uTexture, coverUV(vUv)).rgb;
-    float alpha = smoothstep(0.5, 0.4, length(pc));
+    // Tighter edge than the reference's 0.4: a soft falloff lets the white page
+    // bleed between particles, which washes the photograph out.
+    float alpha = smoothstep(0.5, 0.44, length(pc));
     gl_FragColor = vec4(col, alpha);
   }
 `;
@@ -65,6 +67,15 @@ const MAX_PARTICLES = 220000;
 /** Settled thresholds, in clip-space units. */
 const EPS_POS = 1e-4;
 const EPS_VEL = 1e-3;
+/**
+ * Cursor influence, in CSS px rather than the reference's clip-space constants
+ * (radius 0.3 / force 32). Clip space is relative to the frame, so on a
+ * full-width hero those become a ~170px radius and ~260px of displacement —
+ * far more violent than the same numbers in a small demo box. Anchoring them
+ * to pixels keeps the nudge small and identical at any hero size.
+ */
+const RADIUS_PX = 90;
+const PUSH_PX = 45;
 
 type Props = {
   image: string;
@@ -78,7 +89,9 @@ const InertiaParticles = ({
   image,
   className,
   dpr = 2,
-  pointScale = 1.25,
+  // >1 so neighbouring particles overlap and cover the page between them,
+  // keeping the tone of the photograph instead of a lightened haze.
+  pointScale = 1.45,
   onReady,
 }: Props) => {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -238,7 +251,10 @@ const InertiaParticles = ({
     canvas.addEventListener("webglcontextlost", onContextLost);
     canvas.addEventListener("webglcontextrestored", onContextRestored);
 
-    const sim = { stiffness: 70, damping: 0.88, radius: 0.3, force: 32 };
+    const sim = { stiffness: 70, damping: 0.88 };
+    // Frame height in CSS px, used to convert the pixel-based cursor
+    // influence into clip-space units. Updated on resize.
+    let frameH = 0;
 
     const mouse = new THREE.Vector2(1000, 1000);
     const onPointerMove = (e: PointerEvent) => {
@@ -254,7 +270,12 @@ const InertiaParticles = ({
 
     const step = (dt: number, aspect: number) => {
       if (!count || !positionAttr) return;
-      const { stiffness, radius, force } = sim;
+      const { stiffness } = sim;
+      // Clip space spans 2 units over the frame height, so half the frame is 1.
+      const halfH = Math.max(1, frameH * 0.5);
+      const radius = Math.min(0.6, RADIUS_PX / halfH);
+      // Steady displacement is force/stiffness, so solve for PUSH_PX of travel.
+      const force = (PUSH_PX / halfH) * stiffness;
       const damp = Math.pow(sim.damping, dt * 60);
       const hasMouse = mouse.x < 100;
       const mx = mouse.x;
@@ -388,6 +409,7 @@ const InertiaParticles = ({
       const h = container.clientHeight;
       if (w === 0 || h === 0) return;
       renderer.setSize(w, h);
+      frameH = h;
       uniforms.uResolution.value.set(
         renderer.domElement.width,
         renderer.domElement.height,
