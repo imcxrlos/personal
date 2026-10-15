@@ -5,43 +5,34 @@ import { HeroShader } from "@/components/hero-shader";
 export default function Home() {
   return (
     <>
-      {/* Hero — the particle cove fills the whole hero; text sits over it. */}
-      <section className="relative isolate flex min-h-[86svh] items-center overflow-hidden border-b md:min-h-[82vh]">
+      {/* Hero — centered type over the full-bleed particle cove, which reads
+          as a full-width band beneath the text. */}
+      <section className="relative isolate flex min-h-[92svh] items-start overflow-hidden border-b pt-24 md:min-h-[90vh] md:pt-32">
         {/* Full-bleed background: interactive particle photograph */}
         <HeroShader src="/hero-cove-sm.jpg" />
 
-        {/* White veil — keeps the type legible and preserves the editorial feel.
-            Desktop: strong at top-left (behind the text), clearing toward the
-            lower right so the cove reads as part of the page, not a boxed image. */}
+        {/* White veil — a soft halo behind the centered type keeps it legible,
+            while the cove reads clearly around and below it. */}
         <div
           aria-hidden
-          className="pointer-events-none absolute inset-0 hidden md:block"
+          className="pointer-events-none absolute inset-0"
           style={{
             background:
-              "linear-gradient(104deg, rgba(255,255,255,0.98) 0%, rgba(255,255,255,0.95) 34%, rgba(255,255,255,0.78) 48%, rgba(255,255,255,0.3) 64%, rgba(255,255,255,0) 82%), linear-gradient(0deg, rgba(255,255,255,0.82) 0%, rgba(255,255,255,0) 30%)",
-          }}
-        />
-        {/* Mobile: vertical veil — text stays over white up top, cove emerges below. */}
-        <div
-          aria-hidden
-          className="pointer-events-none absolute inset-0 md:hidden"
-          style={{
-            background:
-              "linear-gradient(180deg, rgba(255,255,255,0.97) 0%, rgba(255,255,255,0.93) 48%, rgba(255,255,255,0.72) 64%, rgba(255,255,255,0.3) 80%, rgba(255,255,255,0) 96%)",
+              "radial-gradient(115% 82% at 50% 40%, rgba(255,255,255,0.98) 0%, rgba(255,255,255,0.96) 36%, rgba(255,255,255,0.74) 55%, rgba(255,255,255,0.32) 72%, rgba(255,255,255,0) 90%)",
           }}
         />
 
-        {/* Text */}
-        <div className="wrap relative z-10 py-16 md:py-0">
-          <div className="rise max-w-2xl">
+        {/* Text — centered */}
+        <div className="wrap relative z-10 w-full">
+          <div className="rise mx-auto flex max-w-3xl flex-col items-center text-center">
             <p className="eyebrow mb-6">{site.role} — independent</p>
             <h1 className="serif text-4xl leading-[1.08] sm:text-5xl md:text-6xl md:leading-[1.03]">
               Software that custodies nothing it doesn&apos;t have to, and proves what it claims.
             </h1>
-            <p className="mt-7 max-w-md text-base leading-relaxed text-[var(--color-muted)]">
+            <p className="mt-7 max-w-xl text-base leading-relaxed text-[var(--color-muted)] md:text-lg">
               {site.intro}
             </p>
-            <div className="mt-9 flex flex-wrap items-center gap-3">
+            <div className="mt-9 flex flex-wrap items-center justify-center gap-3">
               <Link href="/projects" className="btn btn-solid">
                 View projects
               </Link>

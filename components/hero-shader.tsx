@@ -86,7 +86,7 @@ export function HeroShader({ src }: Props) {
         draggable={false}
       />
       {enhanced && imgLoaded ? (
-        <FlowField image={src} cols={170} className="" />
+        <FlowField image={src} cols={210} dpr={2} className="" />
       ) : null}
       {enhanced ? (
         <span className="pointer-events-none absolute bottom-3 right-4 font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--color-ink)]/45">

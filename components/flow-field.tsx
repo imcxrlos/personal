@@ -133,7 +133,9 @@ const FlowField = ({ image, className, dpr = 1.5, cols = 136 }: Props) => {
       uResolution: { value: new THREE.Vector2() },
       uImageResolution: { value: new THREE.Vector2(1, 1) },
       uCols: { value: COLS },
-      uPointScale: { value: 1.35 },
+      // >1 so neighbouring points overlap and fill the gaps between them,
+      // so the field reads as the photograph rather than a halftone of dots.
+      uPointScale: { value: 1.7 },
     };
     const material = new THREE.ShaderMaterial({
       uniforms,
