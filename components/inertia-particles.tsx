@@ -3,8 +3,15 @@
 /**
  * Move the cursor to shove the particles aside — a damped spring snaps them
  * back. Particles sample the photograph; gaps are transparent so the page
- * shows through. Debug UI removed; texture load is cached-safe (no zoom);
- * fades in via onReady; pauses offscreen and when the tab is hidden.
+ * shows through.
+ *
+ * Adapted from the reference effect, which hardcodes a 140x80 grid sized for a
+ * small demo box. That is far too coarse on a full-width hero, and its cells
+ * are only square at one aspect ratio. Here the grid is derived from the
+ * container (columns from a target pitch, rows from the real aspect) and is
+ * rebuilt whenever the container resizes — so it can never get stuck at a
+ * coarse size it was mounted with. Physics, shaders and spring values are
+ * unchanged from the reference.
  */
 
 import { useEffect, useRef } from "react";
@@ -47,28 +54,23 @@ const FRAGMENT_SHADER = /* glsl */ `
   }
 `;
 
+/** Spacing between particles, in CSS px. Smaller = finer grain. */
+const TARGET_PITCH = 6;
+/** Upper bound on particle count, to keep the CPU step at 60fps. */
+const MAX_PARTICLES = 64000;
+
 type Props = {
   image: string;
   className?: string;
   dpr?: number;
-  /** Optional overrides; by default the grid is derived from the frame size. */
-  cols?: number;
-  rows?: number;
   pointScale?: number;
   onReady?: () => void;
 };
-
-/** Spacing between particles, in CSS px. Smaller = finer grain. */
-const TARGET_PITCH = 6;
-/** Upper bound on particle count, to keep the CPU step at 60fps. */
-const MAX_PARTICLES = 48000;
 
 const InertiaParticles = ({
   image,
   className,
   dpr = 2,
-  cols,
-  rows,
   pointScale = 1.3,
   onReady,
 }: Props) => {
@@ -80,57 +82,67 @@ const InertiaParticles = ({
     const container = containerRef.current;
     if (!container) return;
 
-    // The grid is sized to the container, not fixed: a fixed 140x80 grid is
-    // far too coarse on a full-width hero (~11px between particles) and its
-    // cells are only square at one aspect ratio — at any other, the rows stop
-    // touching and the image bands. Derive columns from a target pitch and
-    // rows from the real aspect so cells stay square at any hero size.
-    const frameW = container.clientWidth || 1200;
-    const frameH = container.clientHeight || 800;
-    const aspect = frameW / frameH;
-
-    let COLS = cols ?? Math.round(frameW / TARGET_PITCH);
-    COLS = Math.max(60, Math.min(COLS, 340));
-    let ROWS = rows ?? Math.round(COLS / aspect);
-    ROWS = Math.max(16, ROWS);
-    if (COLS * ROWS > MAX_PARTICLES) {
-      const k = Math.sqrt(MAX_PARTICLES / (COLS * ROWS));
-      COLS = Math.max(60, Math.round(COLS * k));
-      ROWS = Math.max(16, Math.round(ROWS * k));
-    }
-
     const camera = new THREE.Camera();
     const scene = new THREE.Scene();
-
-    const count = COLS * ROWS;
-    const positions = new Float32Array(count * 3);
-    const uvs = new Float32Array(count * 2);
-    const homeX = new Float32Array(count);
-    const homeY = new Float32Array(count);
-    const velX = new Float32Array(count);
-    const velY = new Float32Array(count);
-    let p = 0;
-    for (let j = 0; j < ROWS; j++) {
-      for (let i = 0; i < COLS; i++) {
-        const u = (i + 0.5) / COLS;
-        const v = (j + 0.5) / ROWS;
-        const x = u * 2 - 1;
-        const y = v * 2 - 1;
-        homeX[p] = x;
-        homeY[p] = y;
-        positions[p * 3] = x;
-        positions[p * 3 + 1] = y;
-        positions[p * 3 + 2] = 0;
-        uvs[p * 2] = u;
-        uvs[p * 2 + 1] = v;
-        p++;
-      }
-    }
     const geometry = new THREE.BufferGeometry();
-    const positionAttr = new THREE.BufferAttribute(positions, 3);
-    positionAttr.setUsage(THREE.DynamicDrawUsage);
-    geometry.setAttribute("position", positionAttr);
-    geometry.setAttribute("aUv", new THREE.BufferAttribute(uvs, 2));
+
+    // --- grid state (rebuilt on resize) ---
+    let COLS = 0;
+    let ROWS = 0;
+    let count = 0;
+    let positions = new Float32Array(0);
+    let homeX = new Float32Array(0);
+    let homeY = new Float32Array(0);
+    let velX = new Float32Array(0);
+    let velY = new Float32Array(0);
+    let positionAttr: THREE.BufferAttribute | null = null;
+
+    const idealGrid = (w: number, h: number) => {
+      const aspect = w / h;
+      let c = Math.max(60, Math.min(Math.round(w / TARGET_PITCH), 340));
+      let r = Math.max(16, Math.round(c / aspect));
+      if (c * r > MAX_PARTICLES) {
+        const k = Math.sqrt(MAX_PARTICLES / (c * r));
+        c = Math.max(60, Math.round(c * k));
+        r = Math.max(16, Math.round(r * k));
+      }
+      return { c, r };
+    };
+
+    const buildGrid = (c: number, r: number) => {
+      COLS = c;
+      ROWS = r;
+      count = c * r;
+      positions = new Float32Array(count * 3);
+      const uvs = new Float32Array(count * 2);
+      homeX = new Float32Array(count);
+      homeY = new Float32Array(count);
+      velX = new Float32Array(count);
+      velY = new Float32Array(count);
+      let p = 0;
+      for (let j = 0; j < ROWS; j++) {
+        for (let i = 0; i < COLS; i++) {
+          const u = (i + 0.5) / COLS;
+          const v = (j + 0.5) / ROWS;
+          const x = u * 2 - 1;
+          const y = v * 2 - 1;
+          homeX[p] = x;
+          homeY[p] = y;
+          positions[p * 3] = x;
+          positions[p * 3 + 1] = y;
+          positions[p * 3 + 2] = 0;
+          uvs[p * 2] = u;
+          uvs[p * 2 + 1] = v;
+          p++;
+        }
+      }
+      positionAttr = new THREE.BufferAttribute(positions, 3);
+      positionAttr.setUsage(THREE.DynamicDrawUsage);
+      geometry.setAttribute("position", positionAttr);
+      geometry.setAttribute("aUv", new THREE.BufferAttribute(uvs, 2));
+      geometry.setDrawRange(0, count);
+      uniforms.uCols.value = COLS;
+    };
 
     const animated = createAnimatedTexture(image);
 
@@ -138,7 +150,7 @@ const InertiaParticles = ({
       uTexture: { value: animated.texture },
       uResolution: { value: new THREE.Vector2() },
       uImageResolution: { value: new THREE.Vector2(1, 1) },
-      uCols: { value: COLS },
+      uCols: { value: 140 },
       uPointScale: { value: pointScale },
     };
 
@@ -152,6 +164,7 @@ const InertiaParticles = ({
     });
 
     const points = new THREE.Points(geometry, material);
+    points.frustumCulled = false;
     scene.add(points);
 
     let renderer: THREE.WebGLRenderer;
@@ -202,6 +215,7 @@ const InertiaParticles = ({
     canvas.addEventListener("pointerleave", onPointerLeave);
 
     const step = (dt: number, aspect: number) => {
+      if (!count || !positionAttr) return;
       const { stiffness, radius, force } = sim;
       const damp = Math.pow(sim.damping, dt * 60);
       const hasMouse = mouse.x < 100;
@@ -241,7 +255,7 @@ const InertiaParticles = ({
 
     let readyFired = false;
     const render = () => {
-      if (contextLost) return;
+      if (contextLost || !count) return;
       const img = animated.texture.image as {
         width: number;
         height: number;
@@ -279,6 +293,10 @@ const InertiaParticles = ({
         renderer.domElement.width,
         renderer.domElement.height,
       );
+      // Rebuild the grid if the frame no longer matches it — this is what keeps
+      // the particles from being stuck at whatever size they were mounted at.
+      const { c, r } = idealGrid(w, h);
+      if (c !== COLS || r !== ROWS) buildGrid(c, r);
       render();
     };
     resize();
@@ -326,7 +344,7 @@ const InertiaParticles = ({
       renderer.forceContextLoss();
       renderer.dispose();
     };
-  }, [image, dpr, cols, rows, pointScale]);
+  }, [image, dpr, pointScale]);
 
   return (
     <div
