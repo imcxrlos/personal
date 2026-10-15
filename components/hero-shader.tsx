@@ -4,7 +4,9 @@ import { useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 
 // Three.js + the effect load only on the client, on demand, as a separate chunk.
-const FlowField = dynamic(() => import("./flow-field"), { ssr: false });
+const DotMatrixScatter = dynamic(() => import("./dot-matrix-scatter"), {
+  ssr: false,
+});
 
 function webglAvailable(): boolean {
   try {
@@ -82,17 +84,15 @@ export function HeroShader({ src }: Props) {
         draggable={false}
       />
       {enhanced && imgLoaded ? (
-        <FlowField
+        <DotMatrixScatter
           image={src}
-          cols={210}
-          dpr={2}
           className=""
           onReady={() => setFadeStatic(true)}
         />
       ) : null}
       {enhanced ? (
         <span className="pointer-events-none absolute bottom-3 right-4 font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--color-ink)]/45">
-          Move your pointer across the water
+          Move your cursor to scatter the dots
         </span>
       ) : null}
     </div>
