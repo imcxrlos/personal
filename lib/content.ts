@@ -30,6 +30,8 @@ export type Project = {
   status: string;
   summary: string;
   stack: string[];
+  // Public product site, when there is one.
+  url?: string;
 };
 
 export const projects: Project[] = [
@@ -42,6 +44,7 @@ export const projects: Project[] = [
     summary:
       "Buyer protection for stablecoin payments on Solana. The money sits in an on-chain escrow for that one payment until it's released to the seller, refunded after a dispute, or the protection period runs out. Businesses can take payments through a hosted checkout.",
     stack: ["Rust", "Anchor", "Solana", "TypeScript", "Next.js"],
+    url: "https://indeficient.com/business",
   },
   {
     slug: "studispace",
@@ -52,6 +55,7 @@ export const projects: Project[] = [
     summary:
       "A study app for students on web and iOS. Upload a PDF, notes, a web page or a YouTube video and it builds flashcards, quizzes and practice tests from it. Then you study with spaced review, an AI tutor, and progress tracking.",
     stack: ["React", "Firebase", "Swift / SwiftUI", "OpenAI · Gemini", "Stripe"],
+    url: "https://studispace.com",
   },
   {
     slug: "find-my-savings",

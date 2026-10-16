@@ -30,6 +30,16 @@ function ProjectBreakdown({ p, d }: { p: Project; d: ProjectDetail }) {
             <p className="eyebrow mt-2">
               {p.kind} · {p.year}
             </p>
+            {p.url ? (
+              <a
+                href={p.url}
+                target="_blank"
+                rel="noreferrer noopener"
+                className="link-underline mt-3 inline-block font-mono text-xs text-[var(--color-ink)]"
+              >
+                {p.url.replace(/^https?:\/\//, "")} ↗
+              </a>
+            ) : null}
           </div>
           <dl className="flex flex-col gap-0 border-t">
             {d.facts.map((f) => (

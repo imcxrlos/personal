@@ -2,6 +2,9 @@ import Link from "next/link";
 import { site, projects, additionalProjects, areas } from "@/lib/content";
 import { HeroShader } from "@/components/hero-shader";
 
+// "https://indeficient.com/business" -> "indeficient.com/business"
+const displayUrl = (url: string) => url.replace(/^https?:\/\//, "");
+
 export default function Home() {
   return (
     <>
@@ -122,6 +125,18 @@ export default function Home() {
                     </div>
                   </div>
                 </Link>
+                {/* Outside the card link: anchors can't nest. Indented to the
+                    card's text column (3rem number column + 2.5rem gap). */}
+                {p.url ? (
+                  <a
+                    href={p.url}
+                    target="_blank"
+                    rel="noreferrer noopener"
+                    className="link-underline mt-5 inline-block font-mono text-xs text-[var(--color-faint)] transition-colors hover:text-[var(--color-ink)] md:ml-[5.5rem]"
+                  >
+                    {displayUrl(p.url)} ↗
+                  </a>
+                ) : null}
               </li>
             ))}
           </ol>
