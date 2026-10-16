@@ -170,13 +170,19 @@ a {
   }
 }
 
-/* Hero image: fit the whole photograph within the viewport so nothing is
-   below the fold. Width is bounded by the available height times the image
-   aspect (1600/1138), which preserves the aspect ratio — the shader's
-   cover-fit only shows the full image when the frame matches it. */
+/* Hero image (desktop): full width, exactly one screen tall below the header
+   (h-14 + 1px border), so nothing is below the fold. Where the screen is wider
+   than the photo, the crop comes only off the top — the photo's upper ~40% is
+   empty white sky behind the headline — and the bottom (cliffs, bay, beach) is
+   anchored and always whole. The frame is capped at 2.3:1, which trims at most
+   39% of the height, so the crop never reaches the headlands; past that it
+   centers with side margins. The shader anchors to the bottom to match. */
 @media (min-width: 768px) {
   .hero-fit {
-    max-width: calc((100svh - 3.5rem) * 1.4059);
+    --hero-h: calc(100svh - 3.5rem - 1px);
+    aspect-ratio: auto;
+    height: min(var(--hero-h), calc(100vw / 1.4059));
+    max-width: calc(var(--hero-h) * 2.3);
     margin-inline: auto;
   }
 }

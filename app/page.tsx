@@ -5,14 +5,25 @@ import { HeroShader } from "@/components/hero-shader";
 export default function Home() {
   return (
     <>
-      {/* Hero — the WHOLE photograph at its natural proportions. Desktop: text
-          centered over the white sky, the cove below. Mobile: text, then the
-          full image. The image is never cropped or zoomed. */}
+      {/* Hero — Desktop: the photograph full width and one screen tall, text
+          centered over the white sky, the cove below; any crop comes only off
+          the empty sky. Mobile: text, then the full image. */}
       <section className="relative isolate flex flex-col overflow-hidden border-b md:block">
         {/* Text */}
         <div className="order-1 md:pointer-events-none md:absolute md:inset-x-0 md:top-0 md:z-10">
           <div className="wrap pt-14 pb-8 md:pb-0 md:pt-[4.5vh] lg:pt-[6vh]">
-            <div className="rise mx-auto flex max-w-3xl flex-col items-center text-center md:pointer-events-auto">
+            <div className="rise relative mx-auto flex max-w-3xl flex-col items-center text-center md:pointer-events-auto">
+              {/* Soft glow behind the type only: on short, wide screens the
+                  full-bleed photo rises into the text block, and this keeps
+                  the copy legible without washing out the rest of the image. */}
+              <div
+                aria-hidden
+                className="pointer-events-none absolute -inset-x-24 -inset-y-10 -z-10 hidden md:block"
+                style={{
+                  background:
+                    "radial-gradient(closest-side, rgba(255,255,255,0.88) 55%, rgba(255,255,255,0.6) 78%, rgba(255,255,255,0) 100%)",
+                }}
+              />
               <p className="eyebrow mb-5">{site.role} — independent</p>
               <h1 className="serif text-4xl leading-[1.08] sm:text-5xl md:leading-[1.04]">
                 Software that custodies nothing it doesn&apos;t have to, and proves what it claims.
@@ -51,7 +62,8 @@ export default function Home() {
           }}
         />
 
-        {/* The whole image, natural aspect, bounded to the viewport height */}
+        {/* Mobile: the whole image at its natural aspect. Desktop: full width,
+            one screen tall, cropped only from the sky (see .hero-fit). */}
         <div className="hero-fit relative order-2 aspect-[1600/1138] w-full">
           <HeroShader src="/hero-cove.jpg" />
         </div>

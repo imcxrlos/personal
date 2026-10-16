@@ -4,7 +4,8 @@
  * Your cursor drags a liquid streak across the image that trails and fades.
  *
  * Ported from the Indeficient business hero. Differences from the original are
- * limited to fit bookkeeping: the image resolution uniform is taken from the
+ * limited to fit bookkeeping: `anchorY` sets where the cover crop is anchored
+ * (default centered, as in the original); the image resolution uniform is from the
  * texture's intrinsic size, and `onReady` fires after the first frame drawn
  * with the real image so the host can reveal the canvas without ever showing
  * the 1x1 placeholder (whose 1:1 "aspect" would cover-crop to a square).
@@ -22,12 +23,16 @@ const CursorTrailSmear = ({
   className,
   dpr = 2,
   controls = false,
+  anchorY = 0.5,
   onReady,
 }: {
   image: string;
   className?: string;
   dpr?: number;
   controls?: boolean;
+  /** Vertical anchor of the cover crop: 0.5 centers (original), 0 keeps the
+   *  image's bottom edge and crops only from the top. */
+  anchorY?: number;
   onReady?: () => void;
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -75,6 +80,7 @@ const CursorTrailSmear = ({
       uCount: { value: 0 },
       uStrength: { value: config.strength },
       uTightness: { value: config.tightness },
+      uAnchorY: { value: anchorY },
     };
 
     const material = new THREE.ShaderMaterial({
@@ -96,6 +102,7 @@ const CursorTrailSmear = ({
         uniform int uCount;
         uniform float uStrength;
         uniform float uTightness;
+        uniform float uAnchorY;
         varying vec2 vUv;
 
         vec2 coverUV(vec2 uv) {
@@ -103,7 +110,8 @@ const CursorTrailSmear = ({
           float ia = uImageResolution.x / uImageResolution.y;
           vec2 s = vec2(1.0);
           if (sa > ia) s.y = ia / sa; else s.x = sa / ia;
-          return (uv - 0.5) * s + 0.5;
+          vec2 a = vec2(0.5, uAnchorY);
+          return (uv - a) * s + a;
         }
 
         void main() {
@@ -255,7 +263,7 @@ const CursorTrailSmear = ({
       renderer.forceContextLoss();
       renderer.dispose();
     };
-  }, [image, dpr, controls]);
+  }, [image, dpr, controls, anchorY]);
 
   return (
     <div
