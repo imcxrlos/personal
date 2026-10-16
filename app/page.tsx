@@ -8,7 +8,7 @@ export default function Home() {
       {/* Hero — Desktop: the hero is one screen tall; the photograph is
           full width, ~80% of it, and sits at the bottom, with the text centered
           above over the white sky. The crop comes mostly off the empty sky. Mobile: text, then the full image. */}
-      <section className="hero relative isolate flex flex-col overflow-hidden border-b md:justify-end">
+      <section className="hero relative isolate flex flex-col overflow-hidden md:justify-end">
         {/* Text */}
         <div className="order-1 md:pointer-events-none md:absolute md:inset-x-0 md:top-0 md:z-10">
           <div className="wrap pt-14 pb-8 md:pb-0 md:pt-[8vh] lg:pt-[10vh]">
@@ -66,6 +66,17 @@ export default function Home() {
             ~80% of the screen, cropped mostly from the sky (see .hero-fit). */}
         <div className="hero-fit relative order-2 aspect-[1600/1138] w-full">
           <HeroShader src="/hero-cove.jpg" />
+          {/* Fade the foreground into the page so the hero runs into the next
+              section without a hard edge. Pointer events pass through to the
+              flow field. */}
+          <div
+            aria-hidden
+            className="pointer-events-none absolute inset-x-0 bottom-0 z-[5] h-[18%]"
+            style={{
+              background:
+                "linear-gradient(180deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.55) 55%, var(--color-paper) 100%)",
+            }}
+          />
         </div>
       </section>
 
