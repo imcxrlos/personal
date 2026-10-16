@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 
 // Three.js + the effect load only on the client, on demand, as a separate chunk.
-const FlowField = dynamic(() => import("./flow-field"), {
+const PixelDistortion = dynamic(() => import("./pixel-distortion"), {
   ssr: false,
 });
 
@@ -23,8 +23,9 @@ function webglAvailable(): boolean {
 /**
  * The hero photograph, cover-fit with the crop weighted toward the top (the
  * empty sky): 88% off the top, 12% off the bottom, matched in the shader. On
- * motion-tolerant desktops with a fine pointer, a curl-noise flow field
- * gently warps the photo (same image, same crop, full resolution); the canvas
+ * motion-tolerant desktops with a fine pointer, moving the cursor
+ * crunches the photo into jittering, RGB-split pixel blocks around the
+ * pointer only; elsewhere it is the untouched photo (same crop). The canvas
  * stays transparent until it has drawn the real image, so the frame is never
  * shown at a placeholder fit. Otherwise the still is the whole visual.
  */
@@ -56,7 +57,7 @@ export function HeroShader({ src }: { src: string }) {
           className="absolute inset-0 transition-opacity duration-500"
           style={{ opacity: ready ? 1 : 0 }}
         >
-          <FlowField
+          <PixelDistortion
             image={src}
             className="absolute inset-0"
             anchorY={0.12}
