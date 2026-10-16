@@ -1,12 +1,16 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { securityIntro, securityArticles } from "@/lib/security";
+import { openGraph } from "@/lib/metadata";
+
+const description =
+  "Security engineering write-ups: adversarial testing of a Solana escrow, payment-app security boundaries, web endpoint testing, and reverse engineering.";
 
 export const metadata: Metadata = {
   title: "Security",
-  description:
-    "Security engineering write-ups: adversarial testing of a Solana escrow, payment-app security boundaries, web endpoint testing, and reverse engineering.",
+  description,
   alternates: { canonical: "/security" },
+  openGraph: openGraph({ title: "Security · cxrlos", description, path: "/security" }),
 };
 
 export default function SecurityPage() {

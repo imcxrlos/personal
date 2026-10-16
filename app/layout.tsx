@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter, Newsreader, JetBrains_Mono } from "next/font/google";
 import { site } from "@/lib/content";
+import { openGraph } from "@/lib/metadata";
 import { Nav } from "@/components/nav";
 import { Footer } from "@/components/footer";
 import "./globals.css";
@@ -31,13 +32,12 @@ export const metadata: Metadata = {
     template: `%s · ${site.handle}`,
   },
   description: site.tagline,
-  openGraph: {
+  openGraph: openGraph({
     title: `${site.name} · ${site.role}`,
     description: site.tagline,
-    url: `https://${site.domain}`,
-    siteName: site.handle,
-    type: "website",
-  },
+    path: "/",
+  }),
+  twitter: { card: "summary_large_image" },
   robots: { index: true, follow: true },
   alternates: { canonical: "/" },
 };

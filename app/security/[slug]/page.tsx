@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { securityArticles } from "@/lib/security";
+import { openGraph } from "@/lib/metadata";
 
 export function generateStaticParams() {
   return securityArticles.map((a) => ({ slug: a.slug }));
@@ -19,6 +20,12 @@ export async function generateMetadata({
     title: a.title,
     description: a.blurb,
     alternates: { canonical: `/security/${a.slug}` },
+    openGraph: openGraph({
+      title: `${a.title} · cxrlos`,
+      description: a.blurb,
+      path: `/security/${a.slug}`,
+      type: "article",
+    }),
   };
 }
 

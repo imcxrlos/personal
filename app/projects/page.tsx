@@ -8,12 +8,16 @@ import {
   type Project,
   type ProjectDetail,
 } from "@/lib/content";
+import { openGraph } from "@/lib/metadata";
+
+const description =
+  "What Protected Pay, StudiSpace, Find My Savings, Reddit Lead Radar and Ticket Arbitrage Intelligence do, and how they're built.";
 
 export const metadata: Metadata = {
   title: "Projects",
-  description:
-    "What Protected Pay, StudiSpace, Find My Savings, Reddit Lead Radar and Ticket Arbitrage Intelligence do, and how they're built.",
+  description,
   alternates: { canonical: "/projects" },
+  openGraph: openGraph({ title: "Projects · cxrlos", description, path: "/projects" }),
 };
 
 function ProjectBreakdown({ p, d }: { p: Project; d: ProjectDetail }) {
