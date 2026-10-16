@@ -1,11 +1,13 @@
 import Link from "next/link";
-import { site } from "@/lib/content";
+import { site, mood } from "@/lib/content";
+import { CurvedText } from "@/components/curved-text";
+import { LiquidPauseAnimation } from "@/components/liquid-pause-animation";
 
 export function Footer() {
   const year = new Date().getFullYear();
   return (
     <footer className="border-t mt-24">
-      <div className="wrap py-12">
+      <div className="wrap pt-12 pb-4">
         <div className="rowgrid">
           <div className="eyebrow">{site.handle} · {year}</div>
           <div className="flex flex-col gap-6 sm:flex-row sm:justify-between">
@@ -34,7 +36,27 @@ export function Footer() {
             </nav>
           </div>
         </div>
+
+        <div className="mt-12 flex flex-wrap items-center justify-between gap-x-8 gap-y-3 border-t pt-4">
+          <p className="flex items-center gap-3">
+            <span className="eyebrow">Current mood</span>
+            {/* Fixed box so the SVG can't shift the layout as it mounts. */}
+            <span aria-hidden className="-mx-2 -my-2 block h-11 w-11 shrink-0">
+              <LiquidPauseAnimation restless={mood === "Dangerous"} />
+            </span>
+            <span className="text-sm text-[var(--color-ink)]">{mood}</span>
+          </p>
+          {/* "#top" scrolls to the top of the document without needing an id. */}
+          <a
+            href="#top"
+            className="link-underline font-mono text-xs text-[var(--color-faint)] transition-colors hover:text-[var(--color-ink)]"
+          >
+            Back to top ↑
+          </a>
+        </div>
       </div>
+
+      <CurvedText />
     </footer>
   );
 }

@@ -20,6 +20,10 @@ export const site = {
   },
 } as const;
 
+// My current mood, shown in the footer. Change this one value to switch it.
+export type Mood = "Harmless" | "Dangerous";
+export const mood: Mood = "Harmless";
+
 export type Stat = { label: string; value: string };
 
 export type Project = {
