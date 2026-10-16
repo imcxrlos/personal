@@ -21,6 +21,8 @@ export type SecurityArticle = {
   sections: SecuritySection[];
   // Honest closing note: scope and limits.
   limits: string;
+  // Links to the project behind the work and related case studies.
+  related?: { label: string; href: string; external?: boolean }[];
 };
 
 export const securityIntro = {
@@ -126,6 +128,11 @@ require!(now >= payment.protection_deadline, ProtectedPayError::ProtectionNotExp
     ],
     limits:
       "This is me testing my own program to show it rejects what it should. It's not an audit or a formal verification, and I'm not calling it one. It's on devnet, where the upgrade authority is still a single key. That's written up in the repo too.",
+    related: [
+      { label: "Protected Pay breakdown", href: "/projects#protected-pay" },
+      { label: "indeficient.com/business", href: "https://indeficient.com/business", external: true },
+      { label: "Payment app security", href: "/security/payments" },
+    ],
   },
   {
     slug: "payments",
@@ -195,6 +202,11 @@ for (const answer of [
     ],
     limits:
       "These are built, tested controls in my own apps, checked against the source. The existence leak was a real bug in my own code that I found and fixed. Nothing here is a finding in someone else's system. No external audit, and no guarantee.",
+    related: [
+      { label: "Protected Pay breakdown", href: "/projects#protected-pay" },
+      { label: "Find My Savings breakdown", href: "/projects#find-my-savings" },
+      { label: "Smart-contract security", href: "/security/smart-contracts" },
+    ],
   },
   {
     slug: "web",
@@ -242,6 +254,10 @@ def payloads(base):
     ],
     limits:
       "The endpoint test ran against a funnel I was authorized to test, with marker-only data. I'm describing the harness I built and the fix I'd apply, not a confirmed data breach. I didn't pull anyone's data. reconkit's active mode is gated to assets you own or are allowed to scan.",
+    related: [
+      { label: "github.com/imcxrlos", href: "https://github.com/imcxrlos", external: true },
+      { label: "Reverse engineering", href: "/security/reverse-engineering" },
+    ],
   },
   {
     slug: "reverse-engineering",
@@ -282,5 +298,9 @@ def grade_headers(...):    ...  # security-header posture, graded`,
     ],
     limits:
       "The tracking-container work used a publicly served file and my own or my employer's container. The pivots in reconkit are passive and browser-equivalent. The on-chain decoding is of public contract bytecode and calldata. None of it involved unauthorized access.",
+    related: [
+      { label: "github.com/imcxrlos", href: "https://github.com/imcxrlos", external: true },
+      { label: "Web app security", href: "/security/web" },
+    ],
   },
 ];

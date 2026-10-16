@@ -89,6 +89,37 @@ export default async function SecurityArticlePage({
           {a.limits}
         </p>
 
+        {a.related && a.related.length > 0 ? (
+          <div className="mt-10">
+            <p className="eyebrow mb-3">Related</p>
+            <ul className="flex flex-col gap-1.5">
+              {a.related.map((r) =>
+                r.external ? (
+                  <li key={r.href}>
+                    <a
+                      href={r.href}
+                      target="_blank"
+                      rel="noreferrer noopener"
+                      className="link-underline text-sm text-[var(--color-ink)]"
+                    >
+                      {r.label} ↗
+                    </a>
+                  </li>
+                ) : (
+                  <li key={r.href}>
+                    <Link
+                      href={r.href}
+                      className="link-underline text-sm text-[var(--color-ink)]"
+                    >
+                      {r.label} →
+                    </Link>
+                  </li>
+                ),
+              )}
+            </ul>
+          </div>
+        ) : null}
+
         <div className="mt-12 flex flex-wrap items-center justify-between gap-4 border-t pt-8">
           <Link href="/security" className="btn btn-ghost">
             ← All security work
