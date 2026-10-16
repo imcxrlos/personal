@@ -34,6 +34,8 @@ export type Project = {
   stack: string[];
   // Public product site, when there is one.
   url?: string;
+  // Public source repository, when there is one.
+  repo?: string;
 };
 
 export const projects: Project[] = [
@@ -66,6 +68,7 @@ export const projects: Project[] = [
     summary:
       "Connects to your bank through Plaid and looks through your transactions for money you might be owed: open class-action settlements, product recalls and wage claims tied to companies you've paid or worked for. It only shows results it can back with an official source.",
     stack: ["TypeScript", "React", "Plaid", "Web Crypto"],
+    repo: "https://github.com/imcxrlos/fintech",
   },
 ];
 
@@ -254,7 +257,7 @@ export const projectDetails: Record<string, ProjectDetail> = {
       { label: "Bank data", value: "Plaid (transactions)" },
       { label: "Crypto", value: "Web Crypto (RS256 / JWKS)" },
       { label: "Client", value: "React" },
-      { label: "Source", value: "Private" },
+      { label: "Source", value: "Frontend on GitHub" },
     ],
     sections: [
       {
@@ -284,7 +287,7 @@ export const projectDetails: Record<string, ProjectDetail> = {
       },
     ],
     note:
-      "Checked against the application source. Source is private; no audit or guarantee is claimed.",
+      "Checked against the application source. The frontend is on GitHub; the server functions described here, including the webhook verification and token exchange, aren't in the public repo. No audit or guarantee is claimed.",
   },
 };
 
@@ -389,13 +392,14 @@ export const methodology: string[] = [
 ];
 
 // ---- Additional projects (/ and /projects) ----------------------------
-// Verified against private source earlier. No repository links (repos are
-// private); no credentials, endpoints, or vendor keys are exposed.
+// Verified against source earlier. Reddit Lead Radar's frontend repo is
+// public; no credentials, endpoints, or vendor keys are exposed here.
 export const additionalProjects: Project[] = [
   {
     slug: "reddit-lead-radar",
     name: "Reddit Lead Radar",
     kind: "Lead generation",
+    repo: "https://github.com/imcxrlos/reddit-radar",
     year: "2026",
     summary:
       "Finds people on Reddit asking for help a client's business can provide. A cheap keyword filter narrows the posts first, then a model checks each one for fit, intent and location and drafts a reply.",
@@ -422,7 +426,7 @@ export const additionalProjectDetails: Record<string, ProjectDetail> = {
       { label: "Frontend", value: "React · Vite" },
       { label: "Backend", value: "Deno functions" },
       { label: "Scheduling", value: "Interval + cron workflows" },
-      { label: "Source", value: "Private" },
+      { label: "Source", value: "Frontend on GitHub" },
     ],
     sections: [
       {
@@ -453,7 +457,7 @@ export const additionalProjectDetails: Record<string, ProjectDetail> = {
       },
     ],
     note:
-      "Source is private. The scraping vendor and credentials are left out on purpose.",
+      "The frontend is on GitHub. Collection and matching run in server functions that aren't in the public repo, and credentials stay out of it.",
   },
   "ticket-arbitrage": {
     slug: "ticket-arbitrage",

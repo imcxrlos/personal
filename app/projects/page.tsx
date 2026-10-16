@@ -30,15 +30,29 @@ function ProjectBreakdown({ p, d }: { p: Project; d: ProjectDetail }) {
             <p className="eyebrow mt-2">
               {p.kind} · {p.year}
             </p>
-            {p.url ? (
-              <a
-                href={p.url}
-                target="_blank"
-                rel="noreferrer noopener"
-                className="link-underline mt-3 inline-block font-mono text-xs text-[var(--color-ink)]"
-              >
-                {p.url.replace(/^https?:\/\//, "")} ↗
-              </a>
+            {p.url || p.repo ? (
+              <div className="mt-3 flex flex-wrap gap-x-5 gap-y-1">
+                {p.url ? (
+                  <a
+                    href={p.url}
+                    target="_blank"
+                    rel="noreferrer noopener"
+                    className="link-underline font-mono text-xs text-[var(--color-ink)]"
+                  >
+                    {p.url.replace(/^https?:\/\//, "")} ↗
+                  </a>
+                ) : null}
+                {p.repo ? (
+                  <a
+                    href={p.repo}
+                    target="_blank"
+                    rel="noreferrer noopener"
+                    className="link-underline font-mono text-xs text-[var(--color-ink)]"
+                  >
+                    GitHub ↗
+                  </a>
+                ) : null}
+              </div>
             ) : null}
           </div>
           <dl className="flex flex-col gap-0 border-t">
@@ -114,9 +128,9 @@ export default function ProjectsPage() {
           What I&apos;ve built and how it works.
         </h1>
         <p className="mt-6 max-w-2xl text-base leading-relaxed text-[var(--color-muted)]">
-          The code for these is private, so instead of repo links, here&apos;s
-          what each project does and the parts of the engineering worth
-          explaining.
+          What each project does and the parts of the engineering worth
+          explaining. Most of the code is private; where a repo is public,
+          it&apos;s linked.
         </p>
 
         {/* Jump list */}
@@ -142,9 +156,8 @@ export default function ProjectsPage() {
       <section className="wrap scroll-mt-20 pt-14 border-t" id="additional">
         <p className="eyebrow">Additional projects</p>
         <p className="mt-4 max-w-2xl text-[15px] leading-relaxed text-[var(--color-muted)]">
-          Two apps built around a data pipeline. The source is private, and
-          I&apos;ve left out the data vendors, internal endpoints and
-          credentials.
+          Two apps built around a data pipeline. I&apos;ve left out the data
+          vendors, internal endpoints and credentials.
         </p>
       </section>
       {additionalProjects.map((p) => (

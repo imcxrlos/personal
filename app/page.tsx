@@ -127,15 +127,29 @@ export default function Home() {
                 </Link>
                 {/* Outside the card link: anchors can't nest. Indented to the
                     card's text column (3rem number column + 2.5rem gap). */}
-                {p.url ? (
-                  <a
-                    href={p.url}
-                    target="_blank"
-                    rel="noreferrer noopener"
-                    className="link-underline mt-5 inline-block font-mono text-xs text-[var(--color-faint)] transition-colors hover:text-[var(--color-ink)] md:ml-[5.5rem]"
-                  >
-                    {displayUrl(p.url)} ↗
-                  </a>
+                {p.url || p.repo ? (
+                  <div className="mt-5 flex flex-wrap gap-x-6 gap-y-2 md:ml-[5.5rem]">
+                    {p.url ? (
+                      <a
+                        href={p.url}
+                        target="_blank"
+                        rel="noreferrer noopener"
+                        className="link-underline font-mono text-xs text-[var(--color-faint)] transition-colors hover:text-[var(--color-ink)]"
+                      >
+                        {displayUrl(p.url)} ↗
+                      </a>
+                    ) : null}
+                    {p.repo ? (
+                      <a
+                        href={p.repo}
+                        target="_blank"
+                        rel="noreferrer noopener"
+                        className="link-underline font-mono text-xs text-[var(--color-faint)] transition-colors hover:text-[var(--color-ink)]"
+                      >
+                        GitHub ↗
+                      </a>
+                    ) : null}
+                  </div>
                 ) : null}
               </li>
             ))}
@@ -156,7 +170,7 @@ export default function Home() {
 
           <ul className="grid gap-px overflow-hidden rounded-sm border bg-[var(--color-line)] sm:grid-cols-2">
             {additionalProjects.map((p) => (
-              <li key={p.slug} className="bg-[var(--color-paper)]">
+              <li key={p.slug} className="relative bg-[var(--color-paper)]">
                 <Link
                   href={`/projects#${p.slug}`}
                   className="group flex h-full flex-col p-6 transition-colors hover:bg-[var(--color-panel)] md:p-7"
@@ -184,6 +198,18 @@ export default function Home() {
                     Read the breakdown →
                   </span>
                 </Link>
+                {/* A sibling of the card link (anchors can't nest), placed on
+                    the "Read the breakdown" line. */}
+                {p.repo ? (
+                  <a
+                    href={p.repo}
+                    target="_blank"
+                    rel="noreferrer noopener"
+                    className="link-underline absolute bottom-6 right-6 font-mono text-xs text-[var(--color-faint)] transition-colors hover:text-[var(--color-ink)] md:bottom-7 md:right-7"
+                  >
+                    GitHub ↗
+                  </a>
+                ) : null}
               </li>
             ))}
           </ul>
