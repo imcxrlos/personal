@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { site, projects, additionalProjects, areas } from "@/lib/content";
 import { HeroShader } from "@/components/hero-shader";
+import { GitHubMark } from "@/components/github-mark";
 
 // "https://indeficient.com/business" -> "indeficient.com/business"
 const displayUrl = (url: string) => url.replace(/^https?:\/\//, "");
@@ -144,8 +145,9 @@ export default function Home() {
                         href={p.repo}
                         target="_blank"
                         rel="noreferrer noopener"
-                        className="link-underline font-mono text-xs text-[var(--color-faint)] transition-colors hover:text-[var(--color-ink)]"
+                        className="link-underline inline-flex items-center gap-1.5 font-mono text-xs text-[var(--color-faint)] transition-colors hover:text-[var(--color-ink)]"
                       >
+                        <GitHubMark className="h-3.5 w-3.5" />
                         GitHub ↗
                       </a>
                     ) : null}
@@ -205,8 +207,9 @@ export default function Home() {
                     href={p.repo}
                     target="_blank"
                     rel="noreferrer noopener"
-                    className="link-underline absolute bottom-6 right-6 font-mono text-xs text-[var(--color-faint)] transition-colors hover:text-[var(--color-ink)] md:bottom-7 md:right-7"
+                    className="link-underline absolute bottom-6 right-6 inline-flex items-center gap-1.5 font-mono text-xs text-[var(--color-faint)] transition-colors hover:text-[var(--color-ink)] md:bottom-7 md:right-7"
                   >
+                    <GitHubMark className="h-3.5 w-3.5" />
                     GitHub ↗
                   </a>
                 ) : null}
