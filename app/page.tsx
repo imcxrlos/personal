@@ -5,10 +5,10 @@ import { HeroShader } from "@/components/hero-shader";
 export default function Home() {
   return (
     <>
-      {/* Hero — Desktop: the photograph full width and ~80% of the screen
-          tall, text centered over the white sky, the cove below; the crop
-          comes mostly off the empty sky. Mobile: text, then the full image. */}
-      <section className="relative isolate flex flex-col overflow-hidden border-b md:block">
+      {/* Hero — Desktop: the hero is one screen tall; the photograph is
+          full width, ~80% of it, and sits at the bottom, with the text centered
+          above over the white sky. The crop comes mostly off the empty sky. Mobile: text, then the full image. */}
+      <section className="hero relative isolate flex flex-col overflow-hidden border-b md:justify-end">
         {/* Text */}
         <div className="order-1 md:pointer-events-none md:absolute md:inset-x-0 md:top-0 md:z-10">
           <div className="wrap pt-14 pb-8 md:pb-0 md:pt-[8vh] lg:pt-[10vh]">

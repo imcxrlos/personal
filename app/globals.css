@@ -170,8 +170,9 @@ a {
   }
 }
 
-/* Hero image (desktop): full width and ~80% of the screen below the header
-   (h-14 + 1px border), so the next section shows above the fold. Where the
+/* Hero (desktop): the section is one screen tall below the header (h-14 + 1px
+   border) — or the image height / 0.8 on tall, narrow screens, so there's no
+   empty band — and the image is full width, ~80% of that, at its bottom. Where the
    screen is wider than the photo, the crop is weighted 88/12: most comes off
    the top — the photo's upper ~40% is empty white sky behind the headline —
    and a sliver off the beach foreground, so the headlands and the bay stay
@@ -179,6 +180,9 @@ a {
    foreground); past that it centers with side margins. The static image's
    object-position and the shader's uAnchorY (0.12 from the bottom) match. */
 @media (min-width: 768px) {
+  .hero {
+    height: min(calc(100svh - 3.5rem - 1px), calc(100vw / 1.4059 / 0.8));
+  }
   .hero-fit {
     --hero-h: calc((100svh - 3.5rem - 1px) * 0.8);
     aspect-ratio: auto;
