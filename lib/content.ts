@@ -392,8 +392,8 @@ export const methodology: string[] = [
 ];
 
 // ---- Additional projects (/ and /projects) ----------------------------
-// Verified against source earlier. Reddit Lead Radar's frontend repo is
-// public; no credentials, endpoints, or vendor keys are exposed here.
+// Verified against source. Reddit Lead Radar's frontend and Ticket Arbitrage's
+// full source are public; no credentials or vendor keys are exposed here.
 export const additionalProjects: Project[] = [
   {
     slug: "reddit-lead-radar",
@@ -409,6 +409,7 @@ export const additionalProjects: Project[] = [
     slug: "ticket-arbitrage",
     name: "Ticket Arbitrage Intelligence",
     kind: "Price tracking",
+    repo: "https://github.com/imcxrlos/ticket-arbitrage-intelligence",
     year: "2026",
     summary:
       "Compares prices for the same events across four ticket marketplaces and flags when the same seats are cheaper on one than another, with price history and alerts.",
@@ -468,7 +469,7 @@ export const additionalProjectDetails: Record<string, ProjectDetail> = {
       { label: "Frontend", value: "React · Vite" },
       { label: "Backend", value: "Deno functions" },
       { label: "Markets", value: "Four marketplaces, one aggregator" },
-      { label: "Source", value: "Private" },
+      { label: "Source", value: "GitHub" },
     ],
     sections: [
       {
@@ -499,6 +500,6 @@ export const additionalProjectDetails: Record<string, ProjectDetail> = {
       },
     ],
     note:
-      "Source is private. Data vendors and internal endpoints are left out on purpose.",
+      "Source is on GitHub, including the sync and live-feed functions. Credentials come from the environment and aren't in the repo.",
   },
 };
