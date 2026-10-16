@@ -40,10 +40,10 @@ export const projects: Project[] = [
     name: "Protected Pay",
     kind: "Payment infrastructure",
     year: "2026",
-    status: "V0 on devnet",
+    status: "On devnet",
     summary:
-      "Buyer protection for stablecoin payments on Solana. The money sits in an on-chain escrow for that one payment until it's released to the seller, refunded after a dispute, or the protection period runs out. Businesses can take payments through a hosted checkout.",
-    stack: ["Rust", "Anchor", "Solana", "TypeScript", "Next.js"],
+      "Protected payment infrastructure for businesses. A business creates a payment through the API, the buyer pays on a hosted checkout, and the money is held in an on-chain escrow on Solana until it's released or a dispute is decided. It comes with a dashboard, signed webhooks and an arbiter console.",
+    stack: ["TypeScript", "Next.js", "Rust", "Anchor", "Solana", "Cloudflare Workers"],
     url: "https://indeficient.com/business",
   },
   {
@@ -103,21 +103,58 @@ export const projectDetails: Record<string, ProjectDetail> = {
   "protected-pay": {
     slug: "protected-pay",
     overview:
-      "Protected Pay adds buyer protection to stablecoin payments. When you pay through it, the money doesn't go straight to the seller. It goes into an escrow that exists only for that payment. If everything's fine, it's released to the seller, either by the buyer or once the protection period ends. If something goes wrong, the buyer can open a dispute before the deadline, and an arbiter decides whether the money goes to the seller or back to the buyer. The program has no instruction that sends it anywhere else. The first version runs on Solana.",
+      "Protected Pay lets a business take stablecoin payments with buyer protection built in. The business creates a payment through an API, sends the buyer to a hosted checkout, and gets webhooks as the payment moves along. The buyer's money doesn't go straight to the business. It's held in an on-chain escrow for that one payment until it's released, or until a dispute is decided. Around that there's a business dashboard, a dispute flow with evidence, and an arbiter console. It runs on Solana devnet today; there's no mainnet deployment yet.",
     facts: [
       { label: "Domain", value: "Payment infrastructure" },
+      { label: "API", value: "REST · signed webhooks" },
+      { label: "Web", value: "Next.js · Cloudflare Workers" },
+      { label: "Storage", value: "D1 · R2" },
       { label: "On-chain", value: "Rust · Anchor 1.2" },
-      { label: "Token", value: "Classic SPL Token" },
-      { label: "Client", value: "TypeScript SDK · @solana/kit" },
-      { label: "Web", value: "Next.js" },
-      { label: "Status", value: "V0 on devnet" },
+      { label: "SDK", value: "TypeScript · @solana/kit · Codama" },
+      { label: "Status", value: "Devnet" },
     ],
     sections: [
       {
-        heading: "One escrow per payment",
+        heading: "The business API",
         body: [
-          "Every payment gets its own vault, owned by an address derived from that payment. There's no shared pool, so one payment can never touch another's funds. Where the money can go is also fixed: the token accounts of the buyer and seller stored when the payment was created. Callers never pick a destination.",
-          "The on-chain program is the only part I treat as trusted. The web app builds no transactions of its own. It goes through an SDK, and I assume the frontend could be compromised.",
+          "A business integrates server to server. It creates a payment intent with who gets paid, the amount, the token, how long the protection lasts (one hour up to 30 days), its own order reference, and some metadata. From there it can list and look up intents, payments and disputes, cancel an intent that hasn't been paid, and read an event log. Retried requests with the same idempotency key return the original result instead of creating a second intent.",
+          "API keys are only shown once. The server stores an HMAC of each key under a rotating server secret, compares in constant time, and rate limits each key to 120 requests a minute. Keys can be revoked or rolled with a grace period, every change is logged, and test keys can't be used against a live environment. Requests that look like they came from a browser are refused, so a key can't quietly end up in frontend code.",
+          "Webhooks are signed with HMAC-SHA256 and a timestamp, and the signing secrets are encrypted at rest. A failed delivery is retried nine times over about three days, and an endpoint that keeps failing gets switched off. Before every attempt the destination is resolved again and refused if it points at a private address, and redirects aren't followed.",
+        ],
+      },
+      {
+        heading: "The checkout",
+        body: [
+          "The buyer opens a link to the hosted checkout and sees who they're paying, the amount, the protection period and when the link expires. They connect a wallet, review the total, including a 1.5% buyer protection fee that's spelled out before they sign, and send. The page walks through preparing, approving in the wallet and confirming, then shows the payment as paid and protected.",
+          "The terms come from the intent, so the buyer can't edit them. The wallet being paid can't pay itself; the checkout blocks it and so does the program. A canceled or expired link says plainly that nothing was charged. Branding and return URLs aren't built yet.",
+          "The server never takes the client's word that a payment happened. It derives the payment's address itself, reads the account from the chain, and checks the recipient, token, amount and period field by field before linking it to the intent. If the confirmation from the browser never arrives, a scheduled job finds the payment on chain instead. A second payment for the same intent, or one that lands after the link expired, is recorded and flagged rather than dropped.",
+        ],
+      },
+      {
+        heading: "The dashboard",
+        body: [
+          "Businesses sign in with their Solana wallet. The dashboard has a setup checklist, payments with search, disputes, API keys, webhooks with a delivery log, the event log, and a quickstart. One wallet can run more than one business. Onboarding is invite-only for now: I approve a request and send a one-time claim link, and the wallet that redeems it becomes the owner. Team members and roles aren't built yet.",
+          "Payment and dispute pages only open for the buyer, the seller, or the arbiter. To anyone else, a real payment and a missing one return the same not-found, so the pages can't be used to check whether a payment exists.",
+        ],
+      },
+      {
+        heading: "Disputes and arbitration",
+        body: [
+          "Before the deadline the buyer can open a dispute: pick a reason, explain what happened, and attach evidence (up to eight images or PDFs, with the type checked from the file itself, stored privately). The seller can respond with their own. Either side can end it early in the other's favor: the buyer can withdraw, or the seller can concede and refund.",
+          "Otherwise it goes to the arbiter, which is a 2-of-3 multisig, not a single key. In the arbiter console one member proposes a release or refund, a second approves, and then it's executed. The app only accepts a proposal whose instruction matches a valid resolution byte for byte, and it reads multisig membership from the chain on every request. That flow is tested against the real multisig program in a local validator; a full run with real wallets on devnet is still on the list.",
+        ],
+      },
+      {
+        heading: "Fees",
+        body: [
+          "The buyer pays a 1.5% protection fee when they pay. The business pays 2.7%, taken only when the money settles to it, whether by release, expiry or a dispute decided in its favor. Refunds carry no fee. The fee terms are stored on each payment when it's created and can't change afterward.",
+        ],
+      },
+      {
+        heading: "Under it: one escrow per payment",
+        body: [
+          "Every payment gets its own vault, owned by an address derived from that payment. There's no shared pool, so one payment can never touch another's funds. Where the money can go is fixed when the payment is created: the buyer's or the seller's token account. Callers never pick a destination.",
+          "The on-chain program is the only part that can move money, and the only part I treat as trusted. The API, dashboard and checkout describe payments; they can't hold or redirect funds. The web app builds no transactions of its own. It goes through the SDK, which owns preparing, describing and sending them.",
         ],
       },
       {
@@ -128,29 +165,21 @@ export const projectDetails: Record<string, ProjectDetail> = {
         ],
       },
       {
-        heading: "Who can do what",
+        heading: "Who can move money",
         body: [
-          "The buyer, seller, arbiter, token, amount, deadline and fee terms are written once and never change. There are no admin instructions and no fee switch. Escrowed money can only go to the stored buyer, the stored seller, or, as the stored fee on a payment that settles to the seller, the stored treasury.",
-          "The arbiter can decide a dispute but can't receive funds or choose another destination. On devnet the arbiter is a 2-of-3 multisig rather than a single key, and that's required before any real money. Each way of ending a dispute early can only be signed by the side it works against: the buyer can withdraw their dispute, and the seller can concede it.",
-        ],
-      },
-      {
-        heading: "Businesses and checkout",
-        body: [
-          "Businesses get a dashboard and a server-to-server API. They create a payment intent (who gets paid, how much, which token, how long the protection lasts), and the buyer pays through a hosted checkout page. Members sign in with their Solana wallet. All of this is off-chain and can't move or hold funds; it only describes payments the program then enforces.",
-          "Payment pages are private to the people in the payment. If you're not one of them, a real payment and a missing one look the same, so a page can't be used to check whether a payment exists.",
+          "The buyer, seller, arbiter, token, amount, deadline and fee terms are written once and never change. There are no admin instructions and no fee switch. Escrowed money can only go to the stored buyer, the stored seller, or, as the stored fee on a payment that settles to the seller, the stored treasury. The arbiter decides disputes but can't receive funds or pick another destination.",
         ],
       },
       {
         heading: "Testing",
         body: [
-          "The program is tested in Rust with LiteSVM. Every instruction has tests for the wrong signer, the wrong state, swapped accounts, and edge values, and they check token balances before and after instead of just checking that a call succeeded. There are also tests for isolation between payments and snapshot tests on the program's interface.",
-          "V0 is on devnet and every transition, plus the rejections around them, has been checked live. That's functional testing, not a security audit, and it isn't a green light for mainnet.",
+          "There are about 930 automated tests, all run in CI. Roughly 100 are Rust tests of the program in LiteSVM: every instruction is tried with the wrong signer, the wrong state, swapped accounts and edge values, and the tests check token balances before and after instead of just checking that a call succeeded. The SDK has about 80, including the multisig flow, and the web app about 750, covering the API, keys, webhooks, intent matching, payment privacy, sign-in, disputes and the checkout. A test also keeps the public docs in line with the code.",
+          "Every state transition, plus the rejections around them, has also been checked live on devnet. That's functional testing, not a security audit, and it isn't a green light for mainnet.",
         ],
       },
     ],
     note:
-      "The architecture is documented in the repo. Program source and deployment keys are private.",
+      "The architecture is documented in the repo. Program source, deployment keys and the staging environment are private.",
   },
   studispace: {
     slug: "studispace",
@@ -272,7 +301,7 @@ export const threatModels: ThreatModel[] = [
     project: "Protected Pay",
     slug: "protected-pay",
     posture:
-      "Only the on-chain program is trusted. The frontend, whoever calls the SDK, and every account passed into an instruction could be malicious. The goal is simple to state: no sequence of instructions can move escrowed money anywhere except the stored buyer or seller, or the stored treasury as the stored fee.",
+      "Only the on-chain program can move money, so it's the only part I trust. The checkout, the dashboard, whoever calls the SDK, and every account passed into an instruction could be malicious. The goal is simple to state: no sequence of instructions can move escrowed money anywhere except the stored buyer or seller, or the stored treasury as the stored fee. The business API and webhooks can't move funds, but they hold business data and talk to the outside world, so they get their own checks.",
     surfaces: [
       {
         surface: "Swapped accounts",
@@ -297,6 +326,24 @@ export const threatModels: ThreatModel[] = [
         risk: "Disputing after the deadline, claiming expiry early, or using zero or odd amounts.",
         control:
           "The chain's clock is the only source of time, with strict comparisons. Arithmetic is checked, and zero or unsupported values fail on chain. Tests hit the exact edges.",
+      },
+      {
+        surface: "Leaked API key",
+        risk: "A business's API key ends up in frontend code or a log and someone uses it to read their payments or create intents.",
+        control:
+          "Only an HMAC of each key is stored, under a rotating server secret, and keys are compared in constant time. Keys are rate limited, revocable, rollable with a grace period, and locked to their environment. Requests that look like they came from a browser are refused.",
+      },
+      {
+        surface: "Webhook abuse",
+        risk: "A business sets its webhook URL to an internal address so the server makes requests on the attacker's behalf, or someone forges a webhook to a business.",
+        control:
+          "Before every delivery the destination is resolved again and refused if it's private; redirects aren't followed and there's a 10-second timeout. Each delivery is signed with HMAC-SHA256 and a timestamp, and the signing secrets are encrypted at rest.",
+      },
+      {
+        surface: "Faked payment",
+        risk: "A client tells the server a payment happened, or that it matches an intent, when it doesn't.",
+        control:
+          "The server derives the payment's address itself, reads it from the chain, and checks recipient, token, amount and period field by field before linking it to an intent.",
       },
       {
         surface: "Payment lookup",
