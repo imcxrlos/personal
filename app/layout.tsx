@@ -27,12 +27,12 @@ const mono = JetBrains_Mono({
 export const metadata: Metadata = {
   metadataBase: new URL(`https://${site.domain}`),
   title: {
-    default: `${site.name} — ${site.role}`,
-    template: `%s — ${site.handle}`,
+    default: `${site.name} · ${site.role}`,
+    template: `%s · ${site.handle}`,
   },
   description: site.tagline,
   openGraph: {
-    title: `${site.name} — ${site.role}`,
+    title: `${site.name} · ${site.role}`,
     description: site.tagline,
     url: `https://${site.domain}`,
     siteName: site.handle,

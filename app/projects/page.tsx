@@ -12,7 +12,7 @@ import {
 export const metadata: Metadata = {
   title: "Projects",
   description:
-    "Technical breakdowns of Protected Pay, StudiSpace, Find My Savings, Reddit Lead Radar, and Ticket Arbitrage Intelligence — escrow architecture, AI systems, data pipelines, and security boundaries.",
+    "What Protected Pay, StudiSpace, Find My Savings, Reddit Lead Radar and Ticket Arbitrage Intelligence do, and how they're built.",
   alternates: { canonical: "/projects" },
 };
 
@@ -101,12 +101,12 @@ export default function ProjectsPage() {
       <section className="wrap pt-20 pb-10 md:pt-28">
         <p className="eyebrow mb-6">Projects</p>
         <h1 className="serif text-4xl leading-[1.1] md:text-5xl max-w-3xl">
-          Systems, defined by what they refuse to do.
+          What I&apos;ve built and how it works.
         </h1>
         <p className="mt-6 max-w-2xl text-base leading-relaxed text-[var(--color-muted)]">
-          Each of these is built around a constraint that has to hold under real
-          conditions. Source is private; what follows is the architecture and the
-          reasoning, not the code.
+          The code for these is private, so instead of repo links, here&apos;s
+          what each project does and the parts of the engineering worth
+          explaining.
         </p>
 
         {/* Jump list */}
@@ -132,9 +132,9 @@ export default function ProjectsPage() {
       <section className="wrap scroll-mt-20 pt-14 border-t" id="additional">
         <p className="eyebrow">Additional projects</p>
         <p className="mt-4 max-w-2xl text-[15px] leading-relaxed text-[var(--color-muted)]">
-          Production systems built around a data pipeline and a scoring or
-          verification model. Both are private; the scraping and data vendors,
-          internal endpoints, and credentials are intentionally left out.
+          Two smaller tools built around a data pipeline. Both are private, and
+          I&apos;ve left out the data vendors, internal endpoints and
+          credentials.
         </p>
       </section>
       {additionalProjects.map((p) => (

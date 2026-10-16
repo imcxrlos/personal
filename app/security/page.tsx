@@ -5,7 +5,7 @@ import { threatModels, methodology } from "@/lib/content";
 export const metadata: Metadata = {
   title: "Security",
   description:
-    "Threat models, attack surfaces, and testing methodology across an on-chain escrow protocol and a bank-data integration — implemented controls, kept distinct from exploratory work.",
+    "How I secure an on-chain escrow and a bank-data integration: what can go wrong, what stops it, and how it's tested.",
   alternates: { canonical: "/security" },
 };
 
@@ -15,20 +15,16 @@ export default function SecurityPage() {
       <section className="wrap pt-20 pb-10 md:pt-28">
         <p className="eyebrow mb-6">Security</p>
         <h1 className="serif text-4xl leading-[1.1] md:text-5xl max-w-3xl">
-          The interesting part is everything the system has to reject.
+          Security notes from two projects that handle money.
         </h1>
         <p className="mt-6 max-w-2xl text-base leading-relaxed text-[var(--color-muted)]">
-          Across these projects the security work is concrete: an on-chain program
-          that assumes its own frontend is hostile, and a fintech backend that
-          treats a public webhook and a bank access token as the two things most
-          worth protecting. What follows is the threat model for each, the attack
-          surfaces, and how the boundaries are tested.
+          Protected Pay holds people&apos;s money in escrow, and Find My Savings
+          holds a live connection to their bank. For each one: what I trust,
+          what could go wrong, what stops it, and how I test that.
         </p>
         <p className="mt-5 max-w-2xl rounded-sm border border-[var(--color-line)] bg-[var(--color-panel)] px-4 py-3 font-mono text-xs leading-relaxed text-[var(--color-muted)]">
-          Scope note — everything described here is an <span className="text-[var(--color-ink)]">implemented, tested control</span>, verified against
-          source. This page claims no external audit, no discovered
-          vulnerabilities, and no security guarantees. Exploratory work is labelled
-          as such.
+          Everything here is <span className="text-[var(--color-ink)]">built and tested</span>, and checked against the source. None of it has
+          had an external audit, and none of it is a security guarantee.
         </p>
       </section>
 
@@ -46,12 +42,12 @@ export default function SecurityPage() {
               </Link>
             </div>
             <div>
-              <h3 className="eyebrow mb-2">Posture</h3>
+              <h3 className="eyebrow mb-2">What&apos;s trusted</h3>
               <p className="text-[15px] leading-relaxed text-[var(--color-ink)]">
                 {t.posture}
               </p>
 
-              <h3 className="eyebrow mt-9 mb-3">Attack surfaces</h3>
+              <h3 className="eyebrow mt-9 mb-3">What could go wrong</h3>
               <div className="flex flex-col">
                 {t.surfaces.map((s) => (
                   <div
@@ -63,7 +59,7 @@ export default function SecurityPage() {
                     </div>
                     <div className="flex flex-col gap-2">
                       <p className="text-sm leading-relaxed text-[var(--color-muted)]">
-                        <span className="text-[var(--color-faint)]">Risk — </span>
+                        <span className="text-[var(--color-faint)]">Risk: </span>
                         {s.risk}
                       </p>
                       <p className="text-sm leading-relaxed text-[var(--color-ink)]">
@@ -84,11 +80,10 @@ export default function SecurityPage() {
       {/* Methodology */}
       <section className="wrap py-14 border-t">
         <div className="rowgrid">
-          <p className="eyebrow">Testing methodology</p>
+          <p className="eyebrow">How I test</p>
           <div>
             <p className="text-[15px] leading-relaxed text-[var(--color-ink)] max-w-2xl">
-              A consistent approach across both the on-chain and the backend work,
-              regardless of language or runtime.
+              The same approach for the on-chain program and the backend.
             </p>
             <ol className="mt-8 flex flex-col gap-6">
               {methodology.map((m, i) => (
@@ -109,24 +104,21 @@ export default function SecurityPage() {
       {/* Reproducibility note */}
       <section className="wrap py-14 border-t">
         <div className="rowgrid">
-          <p className="eyebrow">Reproducibility</p>
+          <p className="eyebrow">Seeing it work</p>
           <div className="max-w-2xl">
             <p className="text-[15px] leading-relaxed text-[var(--color-ink)]">
-              Where a boundary can be demonstrated, it is demonstrated by its test
-              suite rather than by a one-off script. Protected Pay&apos;s rejection
-              paths are exercised by per-instruction tests under LiteSVM that assert
-              on token balances before and after; Find My Savings&apos; webhook
-              verification is a self-contained check that fails closed on a bad
-              signature, issuer, audience, expiry, or body checksum.
+              The tests are the proof. Protected Pay&apos;s rejections are covered by
+              per-instruction LiteSVM tests that check token balances before and
+              after. Find My Savings&apos; webhook check refuses anything with a bad
+              signature, issuer, audience, expiry or body hash.
             </p>
             <p className="mt-4 text-[15px] leading-relaxed text-[var(--color-muted)]">
-              Proprietary source and deployment material stay private. If you&apos;re
-              evaluating this work in depth, I&apos;m happy to walk through the test
-              suites and the reasoning directly.
+              The source and deployment details stay private. If you want to go
+              deeper, I&apos;m happy to walk you through the tests myself.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
               <Link href="/projects" className="btn btn-ghost">
-                ← Project detail
+                ← Projects
               </Link>
               <Link href="/" className="link-underline text-sm self-center">
                 Back to index

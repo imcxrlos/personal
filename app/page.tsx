@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { site, projects, additionalProjects, interests } from "@/lib/content";
+import { site, projects, additionalProjects, areas } from "@/lib/content";
 import { HeroShader } from "@/components/hero-shader";
 
 export default function Home() {
@@ -24,7 +24,7 @@ export default function Home() {
                     "radial-gradient(closest-side, rgba(255,255,255,0.88) 55%, rgba(255,255,255,0.6) 78%, rgba(255,255,255,0) 100%)",
                 }}
               />
-              <p className="eyebrow mb-5">{site.role} — independent</p>
+              <p className="eyebrow mb-5">Independent software engineer</p>
               <h1 className="serif text-balance text-4xl leading-[1.08] sm:text-5xl md:leading-[1.04]">
                 Building systems that earn trust.
               </h1>
@@ -86,9 +86,8 @@ export default function Home() {
           <div className="rowgrid mb-10">
             <p className="eyebrow">Selected work</p>
             <p className="max-w-xl text-sm leading-relaxed text-[var(--color-muted)]">
-              Three systems where the engineering is defined by its constraints —
-              an escrow that can only pay two parties, a bank-data boundary, and an
-              AI pipeline held to a measured bar.
+              The three projects I&apos;ve put the most into. Most of the code is
+              private, so each one has a write-up on how it works.
             </p>
           </div>
 
@@ -114,17 +113,6 @@ export default function Home() {
                     <p className="mt-3 max-w-2xl text-[15px] leading-relaxed text-[var(--color-muted)]">
                       {p.summary}
                     </p>
-                    <ul className="mt-5 flex flex-col gap-1.5">
-                      {p.highlights.map((h) => (
-                        <li
-                          key={h}
-                          className="flex gap-3 text-sm text-[var(--color-ink)]"
-                        >
-                          <span className="mt-[0.45rem] h-px w-3 shrink-0 bg-[var(--color-line-strong)]" />
-                          <span className="leading-relaxed">{h}</span>
-                        </li>
-                      ))}
-                    </ul>
                     <div className="mt-5 flex flex-wrap gap-1.5">
                       {p.stack.map((s) => (
                         <span key={s} className="chip">
@@ -146,9 +134,8 @@ export default function Home() {
           <div className="rowgrid mb-8">
             <p className="eyebrow">Additional projects</p>
             <p className="max-w-xl text-sm leading-relaxed text-[var(--color-muted)]">
-              Production systems built around a data pipeline and a scoring or
-              verification model — shipped, and kept honest about what the model
-              is allowed to assert.
+              Smaller tools that collect data on a schedule, filter it, and use a
+              model only where it helps.
             </p>
           </div>
 
@@ -186,13 +173,13 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Technical interests */}
+      {/* Areas of interest */}
       <section className="wrap py-16">
         <div className="hairline pt-10">
           <div className="rowgrid">
-            <p className="eyebrow">How I work</p>
+            <p className="eyebrow">Areas of interest</p>
             <div className="grid gap-x-10 gap-y-8 sm:grid-cols-2">
-              {interests.map((it) => (
+              {areas.map((it) => (
                 <div key={it.title}>
                   <h3 className="text-sm font-medium tracking-tight">{it.title}</h3>
                   <p className="mt-2 text-sm leading-relaxed text-[var(--color-muted)]">
@@ -212,12 +199,11 @@ export default function Home() {
             <p className="eyebrow">Contact</p>
             <div>
               <p className="serif text-2xl md:text-3xl max-w-xl leading-snug">
-                Building something that has to be correct under adversarial
-                conditions?
+                Want to talk about a project? Send me an email.
               </p>
               <div className="mt-6 flex flex-wrap gap-3">
                 <a href={site.links.email} className="btn btn-solid">
-                  Get in touch
+                  Email me
                 </a>
                 <a
                   href={site.links.github}

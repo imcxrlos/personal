@@ -82,11 +82,15 @@ export default function ImageShaderCanvas({
     const scene = new THREE.Scene();
     const camera = new THREE.Camera();
 
-    // Full-frame triangle.
+    // Full-frame triangle. Three components (z = 0) so three's bounding-sphere
+    // pass doesn't read past each vertex and log NaN; the shader uses xy.
     const geometry = new THREE.BufferGeometry();
     geometry.setAttribute(
       "position",
-      new THREE.BufferAttribute(new Float32Array([-1, -1, 3, -1, -1, 3]), 2),
+      new THREE.BufferAttribute(
+        new Float32Array([-1, -1, 0, 3, -1, 0, -1, 3, 0]),
+        3,
+      ),
     );
 
     const animated = createAnimatedTexture(image);
