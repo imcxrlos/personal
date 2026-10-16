@@ -86,7 +86,7 @@ export default function Home() {
 
       {/* Featured projects */}
       <section className="wrap pb-8" id="work">
-        <div className="hairline pt-10">
+        <div className="pt-10">
           <div className="rowgrid mb-10">
             <p className="eyebrow">Selected work</p>
             <p className="max-w-xl text-sm leading-relaxed text-[var(--color-muted)]">
