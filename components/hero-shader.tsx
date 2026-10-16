@@ -21,8 +21,8 @@ function webglAvailable(): boolean {
 }
 
 /**
- * The hero photograph, cover-fit and anchored to its bottom edge (any crop
- * comes off the empty sky). On motion-tolerant desktops
+ * The hero photograph, cover-fit with the crop weighted toward the top (the
+ * empty sky): 88% off the top, 12% off the bottom, matched in the shader. On motion-tolerant desktops
  * with a fine pointer, a cursor-driven liquid smear is layered over it; the
  * canvas stays transparent until it has drawn the real image, so the frame is
  * never shown at a placeholder fit. Otherwise the still is the whole visual.
@@ -47,7 +47,7 @@ export function HeroShader({ src }: { src: string }) {
       <img
         src={src}
         alt="A quiet coastal cove — turquoise water framed by limestone cliffs and a pale shoreline."
-        className="absolute inset-0 h-full w-full object-cover object-bottom"
+        className="absolute inset-0 h-full w-full object-cover object-[50%_88%]"
         draggable={false}
       />
       {enhanced ? (
@@ -58,7 +58,7 @@ export function HeroShader({ src }: { src: string }) {
           <CursorTrailSmear
             image={src}
             className="absolute inset-0"
-            anchorY={0}
+            anchorY={0.12}
             onReady={() => setReady(true)}
           />
         </div>

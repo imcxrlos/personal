@@ -170,19 +170,20 @@ a {
   }
 }
 
-/* Hero image (desktop): full width, exactly one screen tall below the header
-   (h-14 + 1px border), so nothing is below the fold. Where the screen is wider
-   than the photo, the crop comes only off the top — the photo's upper ~40% is
-   empty white sky behind the headline — and the bottom (cliffs, bay, beach) is
-   anchored and always whole. The frame is capped at 2.3:1, which trims at most
-   39% of the height, so the crop never reaches the headlands; past that it
-   centers with side margins. The shader anchors to the bottom to match. */
+/* Hero image (desktop): full width and ~80% of the screen below the header
+   (h-14 + 1px border), so the next section shows above the fold. Where the
+   screen is wider than the photo, the crop is weighted 88/12: most comes off
+   the top — the photo's upper ~40% is empty white sky behind the headline —
+   and a sliver off the beach foreground, so the headlands and the bay stay
+   whole. The frame is capped at 2.6:1 (at most 46% trimmed: ~40% sky, ~6%
+   foreground); past that it centers with side margins. The static image's
+   object-position and the shader's uAnchorY (0.12 from the bottom) match. */
 @media (min-width: 768px) {
   .hero-fit {
-    --hero-h: calc(100svh - 3.5rem - 1px);
+    --hero-h: calc((100svh - 3.5rem - 1px) * 0.8);
     aspect-ratio: auto;
     height: min(var(--hero-h), calc(100vw / 1.4059));
-    max-width: calc(var(--hero-h) * 2.3);
+    max-width: calc(var(--hero-h) * 2.6);
     margin-inline: auto;
   }
 }

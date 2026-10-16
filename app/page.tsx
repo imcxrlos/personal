@@ -5,13 +5,13 @@ import { HeroShader } from "@/components/hero-shader";
 export default function Home() {
   return (
     <>
-      {/* Hero — Desktop: the photograph full width and one screen tall, text
-          centered over the white sky, the cove below; any crop comes only off
-          the empty sky. Mobile: text, then the full image. */}
+      {/* Hero — Desktop: the photograph full width and ~80% of the screen
+          tall, text centered over the white sky, the cove below; the crop
+          comes mostly off the empty sky. Mobile: text, then the full image. */}
       <section className="relative isolate flex flex-col overflow-hidden border-b md:block">
         {/* Text */}
         <div className="order-1 md:pointer-events-none md:absolute md:inset-x-0 md:top-0 md:z-10">
-          <div className="wrap pt-14 pb-8 md:pb-0 md:pt-[4.5vh] lg:pt-[6vh]">
+          <div className="wrap pt-14 pb-8 md:pb-0 md:pt-[8vh] lg:pt-[10vh]">
             <div className="rise relative mx-auto flex max-w-3xl flex-col items-center text-center md:pointer-events-auto">
               {/* Soft glow behind the type only: on short, wide screens the
                   full-bleed photo rises into the text block, and this keeps
@@ -63,7 +63,7 @@ export default function Home() {
         />
 
         {/* Mobile: the whole image at its natural aspect. Desktop: full width,
-            one screen tall, cropped only from the sky (see .hero-fit). */}
+            ~80% of the screen, cropped mostly from the sky (see .hero-fit). */}
         <div className="hero-fit relative order-2 aspect-[1600/1138] w-full">
           <HeroShader src="/hero-cove.jpg" />
         </div>
