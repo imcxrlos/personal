@@ -25,10 +25,10 @@ export default function Home() {
                 }}
               />
               <p className="eyebrow mb-5">{site.role} — independent</p>
-              <h1 className="serif text-4xl leading-[1.08] sm:text-5xl md:leading-[1.04]">
-                Software that custodies nothing it doesn&apos;t have to, and proves what it claims.
+              <h1 className="serif text-balance text-4xl leading-[1.08] sm:text-5xl md:leading-[1.04]">
+                Building systems that earn trust.
               </h1>
-              <p className="mt-6 max-w-xl text-base leading-relaxed text-[var(--color-muted)]">
+              <p className="mt-6 max-w-xl text-balance text-base leading-relaxed text-[var(--color-muted)]">
                 {site.intro}
               </p>
               <div className="mt-7 flex flex-wrap items-center justify-center gap-3">

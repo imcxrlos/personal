@@ -11,7 +11,7 @@ export const site = {
   tagline:
     "Independent software engineer building AI systems, financial infrastructure, and security-conscious applications.",
   intro:
-    "I design systems where the hard part is the invariant, not the feature — payment rails that custody nothing, backends that treat the client as untrusted, and AI that is held to a measurable bar. Most of my work lives behind private repositories; this is a technical account of how it is built.",
+    "I build AI products, financial infrastructure, and security-focused software.",
   email: "carlosroj212@gmail.com",
   links: {
     github: "https://github.com/imcxrlos",
