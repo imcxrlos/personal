@@ -74,20 +74,20 @@ export const projects: Project[] = [
 
 export const areas: { title: string; body: string }[] = [
   {
-    title: "AI",
-    body: "Products where the model is one part of the system: generation pipelines, tutoring, and checks that catch bad output before a user sees it.",
+    title: "Artificial Intelligence",
+    body: "Building with AI, experimenting with autonomous agents, and exploring what models can do beyond generating text. Especially interested in AI-powered tools, security research, and systems that can reason and act independently.",
   },
   {
-    title: "Security",
-    body: "Authentication, authorization, and keeping secrets and financial data on the server. I like testing what a system rejects as much as what it does.",
+    title: "Cybersecurity",
+    body: "Offensive security, vulnerability research, and reverse engineering. I like understanding how applications work behind the scenes, finding where they break, and figuring out why.",
   },
   {
-    title: "Blockchain infrastructure",
-    body: "On-chain programs that hold real value, mostly on Solana. Escrow, explicit state machines, and keeping the program simple enough to reason about.",
+    title: "Blockchain & Financial Systems",
+    body: "Smart contracts, payment infrastructure, cryptography, and decentralized systems. Interested in building financial tools that give people more control over how money moves.",
   },
   {
-    title: "Automation",
-    body: "Pipelines that collect data on a schedule, filter it cheaply, and only spend a model call when it's worth it.",
+    title: "Automation & Systems",
+    body: "Building bots, data pipelines, and tools that eliminate repetitive work. From market intelligence to APIs and infrastructure, I enjoy making complex processes run on their own.",
   },
 ];
 
