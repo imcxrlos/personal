@@ -1,10 +1,17 @@
 "use client";
 
 /**
- * Particles stream along curl-noise currents that reform the image.
+ * The photograph drifts along curl-noise currents, stirred by the cursor.
  *
- * Ported from the Indeficient business hero. Differences from the original are
- * limited to fit bookkeeping, so the image is never zoomed: `anchorY` sets
+ * Ported from the Indeficient business hero's FlowField. The simulation is the
+ * original — a 140x80 grid of points advected by curl noise, sprung home, with
+ * cursor turbulence — but it is not drawn as dots: each point's offset from
+ * home warps a full-resolution image mesh, so the photo stays sharp and
+ * whole and only the flow moves it. `uGain` scales how far the image follows
+ * the points (the original's dot size hid ~26px of rest drift that would
+ * read as a heavy wobble on a sharp photo).
+ *
+ * Other differences are fit bookkeeping, so the image is never zoomed: `anchorY` sets
  * where the cover crop is anchored (default centered, as in the original) to
  * match the static hero image; the image resolution uniform is taken from the
  * texture's intrinsic size; the canvas fills its frame exactly; and `onReady`
@@ -20,14 +27,13 @@ import { createAnimatedTexture } from "./animated-texture";
 const VERTEX_SHADER = /* glsl */ `
   precision highp float;
   attribute vec2 aUv;
-  uniform vec2 uResolution;
-  uniform float uCols;
-  uniform float uPointScale;
+  attribute vec2 aOffset;
   varying vec2 vUv;
+  varying vec2 vOffset;
   void main() {
     vUv = aUv;
+    vOffset = aOffset;
     gl_Position = vec4(position.xy, 0.0, 1.0);
-    gl_PointSize = (uResolution.x / uCols) * uPointScale;
   }
 `;
 
@@ -37,7 +43,9 @@ const FRAGMENT_SHADER = /* glsl */ `
   uniform vec2 uResolution;
   uniform vec2 uImageResolution;
   uniform float uAnchorY;
+  uniform float uGain;
   varying vec2 vUv;
+  varying vec2 vOffset;
   vec2 coverUV(vec2 uv) {
     float sa = uResolution.x / uResolution.y;
     float ia = uImageResolution.x / uImageResolution.y;
@@ -47,10 +55,10 @@ const FRAGMENT_SHADER = /* glsl */ `
     return (uv - a) * s + a;
   }
   void main() {
-    vec2 pc = gl_PointCoord - 0.5;
-    if (length(pc) > 0.5) discard;
-    vec3 col = texture2D(uTexture, coverUV(vUv)).rgb;
-    gl_FragColor = vec4(col, smoothstep(0.5, 0.4, length(pc)));
+    // The image content at this pixel came from where the flow pushed it
+    // from: step back along the point's offset (clip units -> uv is x0.5).
+    vec2 uv = vUv - vOffset * 0.5 * uGain;
+    gl_FragColor = vec4(texture2D(uTexture, coverUV(uv)).rgb, 1.0);
   }
 `;
 
@@ -131,39 +139,58 @@ const FlowField = ({
         p++;
       }
     }
+    // The grid is drawn as a static, full-frame mesh at the home positions;
+    // the simulated points only feed each vertex's offset.
+    const home = new Float32Array(positions);
+    const offsets = new Float32Array(count * 2);
+    const indices: number[] = [];
+    for (let j = 0; j < ROWS - 1; j++) {
+      for (let i = 0; i < COLS - 1; i++) {
+        const a = j * COLS + i;
+        indices.push(a, a + 1, a + COLS, a + 1, a + COLS + 1, a + COLS);
+      }
+    }
+    // Stretch the outer ring of vertices to the frame edge so the mesh covers
+    // it fully (cell centers sit half a cell inside).
+    for (let k = 0; k < count; k++) {
+      const i = k % COLS;
+      const j = Math.floor(k / COLS);
+      if (i === 0) { home[k * 3] = -1; uvs[k * 2] = 0; }
+      if (i === COLS - 1) { home[k * 3] = 1; uvs[k * 2] = 1; }
+      if (j === 0) { home[k * 3 + 1] = -1; uvs[k * 2 + 1] = 0; }
+      if (j === ROWS - 1) { home[k * 3 + 1] = 1; uvs[k * 2 + 1] = 1; }
+    }
     const geometry = new THREE.BufferGeometry();
-    const positionAttr = new THREE.BufferAttribute(positions, 3);
-    positionAttr.setUsage(THREE.DynamicDrawUsage);
-    geometry.setAttribute("position", positionAttr);
+    geometry.setAttribute("position", new THREE.BufferAttribute(home, 3));
     geometry.setAttribute("aUv", new THREE.BufferAttribute(uvs, 2));
+    const offsetAttr = new THREE.BufferAttribute(offsets, 2);
+    offsetAttr.setUsage(THREE.DynamicDrawUsage);
+    geometry.setAttribute("aOffset", offsetAttr);
+    geometry.setIndex(indices);
 
     const animated = createAnimatedTexture(image);
     const uniforms = {
       uTexture: { value: animated.texture },
       uResolution: { value: new THREE.Vector2() },
       uImageResolution: { value: new THREE.Vector2(1, 1) },
-      uCols: { value: COLS },
-      uPointScale: { value: 1.25 },
       uAnchorY: { value: anchorY },
+      uGain: { value: 0.3 },
     };
     const material = new THREE.ShaderMaterial({
       uniforms,
       vertexShader: VERTEX_SHADER,
       fragmentShader: FRAGMENT_SHADER,
-      transparent: true,
       depthTest: false,
       depthWrite: false,
     });
-    const pointsObj = new THREE.Points(geometry, material);
-    scene.add(pointsObj);
+    const mesh = new THREE.Mesh(geometry, material);
+    scene.add(mesh);
 
     const renderer = new THREE.WebGLRenderer({
       antialias: true,
-      alpha: true,
       powerPreference: "low-power",
     });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, dpr));
-    renderer.setClearColor(0x000000, 0);
     container.appendChild(renderer.domElement);
     const canvas = renderer.domElement;
     // Fill the frame exactly (clientWidth is rounded; a fractional frame
@@ -224,8 +251,10 @@ const FlowField = ({
 
         positions[i * 3] = px + vx * dt;
         positions[i * 3 + 1] = py + vy * dt;
+        offsets[i * 2] = positions[i * 3] - homeX[i];
+        offsets[i * 2 + 1] = positions[i * 3 + 1] - homeY[i];
       }
-      positionAttr.needsUpdate = true;
+      offsetAttr.needsUpdate = true;
     };
 
     let announced = false;
@@ -295,6 +324,7 @@ const FlowField = ({
       gui.add(sim, "stir", 0, 5, 0.1).name("cursor stir");
       gui.add(sim, "radius", 0.1, 0.8, 0.01).name("stir radius");
       gui.add(sim, "homeSpring", 1, 20, 0.5).name("home pull");
+      gui.add(uniforms.uGain, "value", 0, 1, 0.05).name("image follow");
     }
 
     return () => {
