@@ -4,11 +4,10 @@
  * Move your cursor to crunch the image into chunky pixel blocks that jitter,
  * distort and RGB-split around the pointer.
  *
- * Ported from the Indeficient effect, with two changes: away from the cursor
- * the original still quantized the whole image to 240-row blocks, so here the
- * effect is blended out with distance and outside the pointer's reach the
- * photograph is the untouched, full-resolution image; and the block size is
- * stepped rather than continuous, so blocks read as blocks (see below).
+ * Ported from the Indeficient effect unchanged, except outside the pointer's
+ * reach (where the effect's force is exactly 0): there the original still
+ * quantized the whole image to 240-row blocks, and here it is the untouched,
+ * full-resolution photo.
  */
 
 import ImageShaderCanvas from "./image-shader-canvas";
@@ -21,11 +20,8 @@ const FRAGMENT_SHADER = /* glsl */ `
         d.x *= aspect;
         float force = 1.0 - smoothstep(0.0, 0.34, length(d)); // 1 at cursor → 0 away
 
-        // pixel blocks: near full-res away, chunky right under the cursor.
-        // The block size is snapped to 6 steps: varied continuously per pixel,
-        // neighbouring pixels never share a grid and the blocks dissolve into
-        // concentric moire rings instead of reading as blocks.
-        float cells = mix(240.0, 24.0, floor(force * 6.0 + 0.5) / 6.0);
+        // pixel blocks: near full-res away, chunky right under the cursor
+        float cells = mix(240.0, 24.0, force);
         vec2 grid = vec2(cells * aspect, cells);
         vec2 cell = floor(uv * grid);
         vec2 puv = (cell + 0.5) / grid;
@@ -45,9 +41,9 @@ const FRAGMENT_SHADER = /* glsl */ `
           texCover(s - vec2(ca, 0.0)).b
         );
 
-        // Only the pointer's reach is affected: blend back to the untouched
-        // full-resolution photo as the force falls off.
-        col = mix(texCover(uv).rgb, col, smoothstep(0.0, 0.25, force));
+        // Outside the pointer's reach (force is exactly 0) show the untouched
+        // full-resolution photo rather than the 240-row blocks.
+        if (force <= 0.0) col = texCover(uv).rgb;
         gl_FragColor = vec4(col, 1.0);
       }
     `;
