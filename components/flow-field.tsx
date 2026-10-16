@@ -201,7 +201,10 @@ const FlowField = ({
     const onContextLost = (e: Event) => e.preventDefault();
     canvas.addEventListener("webglcontextlost", onContextLost);
 
-    const sim = { flow: 0.5, scale: 2.2, homeSpring: 5, radius: 0.4, stir: 1.8 };
+    // stir is raised from the original 1.8: with uGain 0.3 the cursor's push
+    // (~33px peak) barely stood out from the ambient drift (~17px peak); 3.2
+    // gives ~48px. Ambient flow is unchanged.
+    const sim = { flow: 0.5, scale: 2.2, homeSpring: 5, radius: 0.4, stir: 3.2 };
 
     const mouse = new THREE.Vector2(1000, 1000);
     const onPointerMove = (e: PointerEvent) => {
