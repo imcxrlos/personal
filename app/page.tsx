@@ -110,7 +110,7 @@ export default function Home() {
                         {p.name}
                       </h2>
                       <span className="eyebrow">
-                        {p.kind} · {p.status}
+                        {p.status ? `${p.kind} · ${p.status}` : p.kind}
                       </span>
                     </div>
                     <p className="mt-3 max-w-2xl text-[15px] leading-relaxed text-[var(--color-muted)]">
@@ -149,8 +149,8 @@ export default function Home() {
           <div className="rowgrid mb-8">
             <p className="eyebrow">Additional projects</p>
             <p className="max-w-xl text-sm leading-relaxed text-[var(--color-muted)]">
-              Smaller tools that collect data on a schedule, filter it, and use a
-              model only where it helps.
+              Two apps that collect data on a schedule, filter it, and use a model
+              only where it helps.
             </p>
           </div>
 
@@ -165,7 +165,9 @@ export default function Home() {
                     <h3 className="serif text-xl md:text-2xl transition-colors group-hover:text-[var(--color-accent)]">
                       {p.name}
                     </h3>
-                    <span className="eyebrow shrink-0">{p.status}</span>
+                    {p.status ? (
+                      <span className="eyebrow shrink-0">{p.status}</span>
+                    ) : null}
                   </div>
                   <p className="eyebrow mt-1">{p.kind}</p>
                   <p className="mt-4 text-sm leading-relaxed text-[var(--color-muted)]">

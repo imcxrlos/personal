@@ -27,7 +27,9 @@ export type Project = {
   name: string;
   kind: string;
   year: string;
-  status: string;
+  // Short label next to the kind on the homepage; omitted when there's
+  // nothing worth saying beyond the kind.
+  status?: string;
   summary: string;
   stack: string[];
   // Public product site, when there is one.
@@ -40,7 +42,6 @@ export const projects: Project[] = [
     name: "Protected Pay",
     kind: "Payment infrastructure",
     year: "2026",
-    status: "On devnet",
     summary:
       "Protected payment infrastructure for businesses. A business creates a payment through the API, the buyer pays on a hosted checkout, and the money is held in an on-chain escrow on Solana until it's released or a dispute is decided. It comes with a dashboard, signed webhooks and an arbiter console.",
     stack: ["TypeScript", "Next.js", "Rust", "Anchor", "Solana", "Cloudflare Workers"],
@@ -53,7 +54,7 @@ export const projects: Project[] = [
     year: "2026",
     status: "In production",
     summary:
-      "A study app for students on web and iOS. Upload a PDF, notes, a web page or a YouTube video and it builds flashcards, quizzes and practice tests from it. Then you study with spaced review, an AI tutor, and progress tracking.",
+      "A study app for students on web and iOS. Upload a PDF, notes, a web page or a YouTube video and it builds flashcards, quizzes and practice tests from it. Then you study with spaced repetition, an AI tutor, and progress tracking.",
     stack: ["React", "Firebase", "Swift / SwiftUI", "OpenAI · Gemini", "Stripe"],
     url: "https://studispace.com",
   },
@@ -62,7 +63,6 @@ export const projects: Project[] = [
     name: "Find My Savings",
     kind: "Consumer fintech",
     year: "2026",
-    status: "Private",
     summary:
       "Connects to your bank through Plaid and looks through your transactions for money you might be owed: open class-action settlements, product recalls and wage claims tied to companies you've paid or worked for. It only shows results it can back with an official source.",
     stack: ["TypeScript", "React", "Plaid", "Web Crypto"],
@@ -103,7 +103,7 @@ export const projectDetails: Record<string, ProjectDetail> = {
   "protected-pay": {
     slug: "protected-pay",
     overview:
-      "Protected Pay lets a business take stablecoin payments with buyer protection built in. The business creates a payment through an API, sends the buyer to a hosted checkout, and gets webhooks as the payment moves along. The buyer's money doesn't go straight to the business. It's held in an on-chain escrow for that one payment until it's released, or until a dispute is decided. Around that there's a business dashboard, a dispute flow with evidence, and an arbiter console. It runs on Solana devnet today; there's no mainnet deployment yet.",
+      "Protected Pay lets a business take stablecoin payments with buyer protection built in. The business creates a payment through an API, sends the buyer to a hosted checkout, and gets webhooks as the payment moves along. The buyer's money doesn't go straight to the business. It's held in an on-chain escrow for that one payment until it's released, or until a dispute is decided. Around that there's a business dashboard, a dispute flow with evidence, and an arbiter console. It's deployed on Solana devnet.",
     facts: [
       { label: "Domain", value: "Payment infrastructure" },
       { label: "API", value: "REST · signed webhooks" },
@@ -111,7 +111,7 @@ export const projectDetails: Record<string, ProjectDetail> = {
       { label: "Storage", value: "D1 · R2" },
       { label: "On-chain", value: "Rust · Anchor 1.2" },
       { label: "SDK", value: "TypeScript · @solana/kit · Codama" },
-      { label: "Status", value: "Devnet" },
+      { label: "Network", value: "Solana devnet" },
     ],
     sections: [
       {
@@ -126,14 +126,14 @@ export const projectDetails: Record<string, ProjectDetail> = {
         heading: "The checkout",
         body: [
           "The buyer opens a link to the hosted checkout and sees who they're paying, the amount, the protection period and when the link expires. They connect a wallet, review the total, including a 1.5% buyer protection fee that's spelled out before they sign, and send. The page walks through preparing, approving in the wallet and confirming, then shows the payment as paid and protected.",
-          "The terms come from the intent, so the buyer can't edit them. The wallet being paid can't pay itself; the checkout blocks it and so does the program. A canceled or expired link says plainly that nothing was charged. Branding and return URLs aren't built yet.",
+          "The terms come from the intent, so the buyer can't edit them. The wallet being paid can't pay itself; the checkout blocks it and so does the program. A canceled or expired link says plainly that nothing was charged.",
           "The server never takes the client's word that a payment happened. It derives the payment's address itself, reads the account from the chain, and checks the recipient, token, amount and period field by field before linking it to the intent. If the confirmation from the browser never arrives, a scheduled job finds the payment on chain instead. A second payment for the same intent, or one that lands after the link expired, is recorded and flagged rather than dropped.",
         ],
       },
       {
         heading: "The dashboard",
         body: [
-          "Businesses sign in with their Solana wallet. The dashboard has a setup checklist, payments with search, disputes, API keys, webhooks with a delivery log, the event log, and a quickstart. One wallet can run more than one business. Onboarding is invite-only for now: I approve a request and send a one-time claim link, and the wallet that redeems it becomes the owner. Team members and roles aren't built yet.",
+          "Businesses sign in with their Solana wallet. The dashboard has a setup checklist, payments with search, disputes, API keys, webhooks with a delivery log, the event log, and a quickstart. One wallet can run more than one business. Onboarding is by invite: I approve a request and send a one-time claim link, and the wallet that redeems it becomes the owner.",
           "Payment and dispute pages only open for the buyer, the seller, or the arbiter. To anyone else, a real payment and a missing one return the same not-found, so the pages can't be used to check whether a payment exists.",
         ],
       },
@@ -141,7 +141,7 @@ export const projectDetails: Record<string, ProjectDetail> = {
         heading: "Disputes and arbitration",
         body: [
           "Before the deadline the buyer can open a dispute: pick a reason, explain what happened, and attach evidence (up to eight images or PDFs, with the type checked from the file itself, stored privately). The seller can respond with their own. Either side can end it early in the other's favor: the buyer can withdraw, or the seller can concede and refund.",
-          "Otherwise it goes to the arbiter, which is a 2-of-3 multisig, not a single key. In the arbiter console one member proposes a release or refund, a second approves, and then it's executed. The app only accepts a proposal whose instruction matches a valid resolution byte for byte, and it reads multisig membership from the chain on every request. That flow is tested against the real multisig program in a local validator; a full run with real wallets on devnet is still on the list.",
+          "Otherwise it goes to the arbiter, which is a 2-of-3 multisig, not a single key. In the arbiter console one member proposes a release or refund, a second approves, and then it's executed. The app only accepts a proposal whose instruction matches a valid resolution byte for byte, and it reads multisig membership from the chain on every request. That flow is tested end to end against the real multisig program in a local validator.",
         ],
       },
       {
@@ -174,7 +174,7 @@ export const projectDetails: Record<string, ProjectDetail> = {
         heading: "Testing",
         body: [
           "There are about 930 automated tests, all run in CI. Roughly 100 are Rust tests of the program in LiteSVM: every instruction is tried with the wrong signer, the wrong state, swapped accounts and edge values, and the tests check token balances before and after instead of just checking that a call succeeded. The SDK has about 80, including the multisig flow, and the web app about 750, covering the API, keys, webhooks, intent matching, payment privacy, sign-in, disputes and the checkout. A test also keeps the public docs in line with the code.",
-          "Every state transition, plus the rejections around them, has also been checked live on devnet. That's functional testing, not a security audit, and it isn't a green light for mainnet.",
+          "Every state transition, plus the rejections around them, has also been checked live on devnet. That's functional testing, not a security audit.",
         ],
       },
     ],
@@ -199,7 +199,7 @@ export const projectDetails: Record<string, ProjectDetail> = {
         heading: "From your material to a study set",
         body: [
           "Uploads are checked by their actual bytes, not the file extension. Word documents are parsed on the server. PDFs and images go to the model directly as files, so there's no separate OCR step. Web pages come in through a fetcher that refuses private and cloud-metadata addresses and caps the download size, and YouTube videos are handled by Gemini. The size of the set scales with the source: under 1,000 words you get about 10 flashcards and 8 quiz questions, and long material goes up to 22 and 17.",
-          "The iOS app does more work on the device first. It reads photos with Apple's Vision framework, PDFs with PDFKit, and also imports spreadsheets. Before calling the model it splits the text into sentences, drops near-duplicates, and keeps the most relevant ones to fit a budget. If too few cards come back it retries with the full text, and if the AI call fails it can still generate a basic set on the device.",
+          "The iOS app does more work on the device first. It reads photos with Apple's Vision framework, PDFs with PDFKit, and also imports spreadsheets. Before calling the model it splits the text into sentences, drops near-duplicates, and keeps the most relevant ones to fit a budget. If too few cards come back it retries with the full text, and if the AI call fails it generates the set on the device instead.",
         ],
       },
       {
@@ -210,9 +210,9 @@ export const projectDetails: Record<string, ProjectDetail> = {
         ],
       },
       {
-        heading: "Review scheduling",
+        heading: "Spaced repetition",
         body: [
-          "This is a simple rating-based interval scheduler, not SM-2 or FSRS. On the web, rating a flashcard sets when it comes back: hard means tomorrow, while medium and easy push it out further each time you review it, up to two weeks and a month. Cards that are due come first.",
+          "StudiSpace schedules reviews with its own rating-based intervals rather than a published algorithm like SM-2 or FSRS. On the web, rating a flashcard sets when it comes back: hard means tomorrow, while medium and easy push it out further each time you review it, up to two weeks and a month. Cards that are due come first.",
           "The iOS app has its own scheduler. Each easy rating spaces the next review three days further out than the last, medium one day, and hard brings the card back in 12 hours. A card counts as mastered after three easy ratings in a row. Each set also gets a readiness score that weighs how much you've reviewed, how many times, and how much is mastered.",
         ],
       },
@@ -254,7 +254,7 @@ export const projectDetails: Record<string, ProjectDetail> = {
       { label: "Bank data", value: "Plaid (transactions)" },
       { label: "Crypto", value: "Web Crypto (RS256 / JWKS)" },
       { label: "Client", value: "React" },
-      { label: "Status", value: "Private" },
+      { label: "Source", value: "Private" },
     ],
     sections: [
       {
@@ -397,7 +397,6 @@ export const additionalProjects: Project[] = [
     name: "Reddit Lead Radar",
     kind: "Lead generation",
     year: "2026",
-    status: "Private",
     summary:
       "Finds people on Reddit asking for help a client's business can provide. A cheap keyword filter narrows the posts first, then a model checks each one for fit, intent and location and drafts a reply.",
     stack: ["React", "Vite", "Deno"],
@@ -407,7 +406,6 @@ export const additionalProjects: Project[] = [
     name: "Ticket Arbitrage Intelligence",
     kind: "Price tracking",
     year: "2026",
-    status: "Private",
     summary:
       "Compares prices for the same events across four ticket marketplaces and flags when the same seats are cheaper on one than another, with price history and alerts.",
     stack: ["React", "Vite", "Deno"],
@@ -424,7 +422,7 @@ export const additionalProjectDetails: Record<string, ProjectDetail> = {
       { label: "Frontend", value: "React · Vite" },
       { label: "Backend", value: "Deno functions" },
       { label: "Scheduling", value: "Interval + cron workflows" },
-      { label: "Status", value: "Private" },
+      { label: "Source", value: "Private" },
     ],
     sections: [
       {
@@ -466,7 +464,7 @@ export const additionalProjectDetails: Record<string, ProjectDetail> = {
       { label: "Frontend", value: "React · Vite" },
       { label: "Backend", value: "Deno functions" },
       { label: "Markets", value: "Four marketplaces, one aggregator" },
-      { label: "Status", value: "Private" },
+      { label: "Source", value: "Private" },
     ],
     sections: [
       {

@@ -142,7 +142,7 @@ export default function ProjectsPage() {
       <section className="wrap scroll-mt-20 pt-14 border-t" id="additional">
         <p className="eyebrow">Additional projects</p>
         <p className="mt-4 max-w-2xl text-[15px] leading-relaxed text-[var(--color-muted)]">
-          Two smaller tools built around a data pipeline. Both are private, and
+          Two apps built around a data pipeline. The source is private, and
           I&apos;ve left out the data vendors, internal endpoints and
           credentials.
         </p>
