@@ -1,7 +1,7 @@
 // Single source of truth for site content.
 // Technical claims are checked against each project's source and docs.
 // Protected Pay and StudiSpace were re-verified against their repositories in
-// October 2026; the Base44 projects keep only details verified earlier.
+// October 2026; the other three keep only details verified earlier.
 // No audits, published research, or security guarantees are claimed.
 
 export const site = {
@@ -65,7 +65,7 @@ export const projects: Project[] = [
     status: "Private",
     summary:
       "Connects to your bank through Plaid and looks through your transactions for money you might be owed: open class-action settlements, product recalls and wage claims tied to companies you've paid or worked for. It only shows results it can back with an official source.",
-    stack: ["TypeScript", "React", "Base44", "Plaid"],
+    stack: ["TypeScript", "React", "Plaid", "Web Crypto"],
   },
 ];
 
@@ -222,7 +222,6 @@ export const projectDetails: Record<string, ProjectDetail> = {
       "Find My Savings connects to your bank through Plaid and looks through your transactions for money you might be owed: open class-action settlements, product recalls and wage claims tied to the companies you've paid or worked for. It only shows things it can back with an official source. Since it holds a live connection to someone's bank, most of the interesting engineering is in protecting that connection.",
     facts: [
       { label: "Domain", value: "Consumer fintech" },
-      { label: "Platform", value: "Base44" },
       { label: "Bank data", value: "Plaid (transactions)" },
       { label: "Crypto", value: "Web Crypto (RS256 / JWKS)" },
       { label: "Client", value: "React" },
@@ -354,7 +353,7 @@ export const additionalProjects: Project[] = [
     status: "Private",
     summary:
       "Finds people on Reddit asking for help a client's business can provide. A cheap keyword filter narrows the posts first, then a model checks each one for fit, intent and location and drafts a reply.",
-    stack: ["React", "Vite", "Base44", "Deno"],
+    stack: ["React", "Vite", "Deno"],
   },
   {
     slug: "ticket-arbitrage",
@@ -364,7 +363,7 @@ export const additionalProjects: Project[] = [
     status: "Private",
     summary:
       "Compares prices for the same events across four ticket marketplaces and flags when the same seats are cheaper on one than another, with price history and alerts.",
-    stack: ["React", "Vite", "Base44", "Deno"],
+    stack: ["React", "Vite", "Deno"],
   },
 ];
 
@@ -376,7 +375,7 @@ export const additionalProjectDetails: Record<string, ProjectDetail> = {
     facts: [
       { label: "Domain", value: "B2B lead generation" },
       { label: "Frontend", value: "React · Vite" },
-      { label: "Backend", value: "Base44 · Deno functions" },
+      { label: "Backend", value: "Deno functions" },
       { label: "Scheduling", value: "Interval + cron workflows" },
       { label: "Status", value: "Private" },
     ],
@@ -418,7 +417,7 @@ export const additionalProjectDetails: Record<string, ProjectDetail> = {
     facts: [
       { label: "Domain", value: "Price tracking" },
       { label: "Frontend", value: "React · Vite" },
-      { label: "Backend", value: "Base44 · Deno functions" },
+      { label: "Backend", value: "Deno functions" },
       { label: "Markets", value: "Four marketplaces, one aggregator" },
       { label: "Status", value: "Private" },
     ],
