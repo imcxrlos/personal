@@ -82,7 +82,7 @@ export function CurvedText() {
 
     mm.add("(prefers-reduced-motion: no-preference)", () => {
       const proxy = { p: 0 };
-      const tween = gsap.to(proxy, {
+      gsap.to(proxy, {
         p: 1,
         duration,
         ease: "none",
@@ -93,13 +93,6 @@ export function CurvedText() {
           });
         },
       });
-
-      // Only run while the footer is on screen.
-      const io = new IntersectionObserver(([entry]) =>
-        entry.isIntersecting ? tween.play() : tween.pause(),
-      );
-      if (boxRef.current) io.observe(boxRef.current);
-      return () => io.disconnect();
     });
 
     return () => mm.revert();
