@@ -44,7 +44,7 @@ export function Footer() {
         <p className="flex items-center gap-3">
           <span className="eyebrow">Current mood</span>
           {/* Fixed box so the SVG can't shift the layout as it mounts. */}
-          <span aria-hidden className="-mx-2 -my-2 block h-11 w-11 shrink-0">
+          <span aria-hidden className="-mx-3 -my-3 block h-14 w-14 shrink-0">
             <LiquidPauseAnimation restless={mood === "Dangerous"} />
           </span>
           <span className="text-sm text-[var(--color-ink)]">{mood}</span>

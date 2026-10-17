@@ -106,7 +106,7 @@ export function CurvedText() {
   }, [loop]);
 
   return (
-    <div ref={boxRef} aria-hidden className="h-[124px] w-full overflow-hidden md:h-[188px]">
+    <div ref={boxRef} aria-hidden className="h-[104px] w-full overflow-hidden md:h-[152px]">
       {size.w ? (
         <svg
           width={size.w}
