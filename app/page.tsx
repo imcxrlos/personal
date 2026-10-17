@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { site, projects, additionalProjects, areas } from "@/lib/content";
 import { HeroShader } from "@/components/hero-shader";
+import { HeroClouds, desktopClouds, mobileClouds } from "@/components/hero-clouds";
 import { GitHubMark } from "@/components/github-mark";
 
 // "https://indeficient.com/business" -> "indeficient.com/business"
@@ -66,10 +67,21 @@ export default function Home() {
           }}
         />
 
+        {/* Desktop clouds: above the veil, under the type (whose glow fades
+            them as they pass behind it). */}
+        <HeroClouds
+          clouds={desktopClouds}
+          className="absolute inset-x-0 top-0 z-[6] hidden h-[40%] md:block"
+        />
+
         {/* Mobile: the whole image at its natural aspect. Desktop: full width,
             ~80% of the screen, cropped mostly from the sky (see .hero-fit). */}
         <div className="hero-fit relative order-2 aspect-[1600/1138] w-full">
           <HeroShader src="/hero-cove.jpg" />
+          <HeroClouds
+            clouds={mobileClouds}
+            className="absolute inset-x-0 top-0 z-[4] h-[42%] md:hidden"
+          />
           {/* Fade the foreground into the page so the hero runs into the next
               section without a hard edge. Pointer events pass through to the
               flow field. */}

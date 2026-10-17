@@ -191,3 +191,33 @@ a {
     margin-inline: auto;
   }
 }
+
+/* Hero clouds (components/hero-clouds.tsx). Each drifts from fully off the
+   layer's left edge (-100% of its own width) to fully off its right edge
+   (100cqw), started at its phase by a negative delay; with reduced motion it
+   rests at that same point. */
+.cloud-layer {
+  container-type: inline-size;
+}
+
+.cloud {
+  position: absolute;
+  left: 0;
+  transform: translateX(calc(-100% + (100cqw + 100%) * var(--phase)));
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .cloud {
+    animation: cloud-drift var(--dur) linear infinite;
+    animation-delay: calc(var(--dur) * var(--phase) * -1);
+  }
+}
+
+@keyframes cloud-drift {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(100cqw);
+  }
+}
