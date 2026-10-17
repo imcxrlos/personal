@@ -1,9 +1,11 @@
 "use client";
 
 // The footer's mood mascot, from the supplied LiquidPauseAnimation. Paths,
-// keyframes and timings are the original's. Two additions: `restless` (the
-// Dangerous mood) runs the same loop faster in a darker plum/crimson, and
-// reduced motion holds the first frame.
+// keyframes and timings are the original's. Changes: `restless` (the
+// Dangerous mood) runs the same loop faster in a darker plum/crimson; reduced
+// motion holds the first frame; and the inner-shadow mask keeps the shape's
+// own soft edge (alpha ×1, not the export's ×127), which otherwise snaps the
+// liquid's outline to hard, stair-stepped pixels.
 
 import { motion, useReducedMotion } from "motion/react";
 
@@ -90,14 +92,14 @@ export function LiquidPauseAnimation({ restless = false }: { restless?: boolean 
               <filter id="filter0_ii_971_8000" x="-7" y="30" width="123" height="125" filterUnits="userSpaceOnUse" colorInterpolationFilters="sRGB">
                 <feFlood floodOpacity="0" result="BackgroundImageFix" />
                 <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape" />
-                <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha" />
+                <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0" result="hardAlpha" />
                 <feMorphology radius="8" operator="erode" in="SourceAlpha" result="effect1_innerShadow_971_8000" />
                 <feOffset />
                 <feGaussianBlur stdDeviation="13.95" />
                 <feComposite in2="hardAlpha" operator="arithmetic" k2="-1" k3="1" />
                 <feColorMatrix type="matrix" values="0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 1 0" />
                 <feBlend mode="normal" in2="shape" result="effect1_innerShadow_971_8000" />
-                <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha" />
+                <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0" result="hardAlpha" />
                 <feMorphology radius="18" operator="dilate" in="SourceAlpha" result="effect2_innerShadow_971_8000" />
                 <feOffset dx="9" dy="-11" />
                 <feGaussianBlur stdDeviation="15.6" />

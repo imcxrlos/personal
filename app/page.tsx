@@ -15,8 +15,8 @@ export default function Home() {
           above over the white sky. The crop comes mostly off the empty sky. Mobile: text, then the full image. */}
       <section className="hero relative isolate flex flex-col overflow-hidden md:justify-end">
         {/* Text */}
-        <div className="order-1 md:pointer-events-none md:absolute md:inset-x-0 md:top-0 md:z-10">
-          <div className="wrap pt-14 pb-8 md:pb-0 md:pt-[8vh] lg:pt-[10vh]">
+        <div className="relative z-10 order-1 md:pointer-events-none md:absolute md:inset-x-0 md:top-0">
+          <div className="wrap pt-40 pb-2 md:pb-0 md:pt-[14vh] lg:pt-[17vh]">
             <div className="rise relative mx-auto flex max-w-3xl flex-col items-center text-center md:pointer-events-auto">
               {/* Soft glow behind the type only: on short, wide screens the
                   full-bleed photo rises into the text block, and this keeps
@@ -67,21 +67,22 @@ export default function Home() {
           }}
         />
 
-        {/* Desktop clouds: above the veil, under the type (whose glow fades
-            them as they pass behind it). */}
+        {/* Clouds drift in the band above the title (the text block's top
+            padding). Above the veil, under the type, whose glow fades any
+            cloud that dips behind it. */}
         <HeroClouds
           clouds={desktopClouds}
-          className="absolute inset-x-0 top-0 z-[6] hidden h-[40%] md:block"
+          className="absolute inset-x-0 top-0 z-[6] hidden md:block md:h-[14vh] lg:h-[17vh]"
+        />
+        <HeroClouds
+          clouds={mobileClouds}
+          className="absolute inset-x-0 top-0 z-[6] h-40 md:hidden"
         />
 
         {/* Mobile: the whole image at its natural aspect. Desktop: full width,
             ~80% of the screen, cropped mostly from the sky (see .hero-fit). */}
-        <div className="hero-fit relative order-2 aspect-[1600/1138] w-full">
+        <div className="hero-fit relative order-2 -mt-8 aspect-[1600/1138] w-full md:mt-0">
           <HeroShader src="/hero-cove.jpg" />
-          <HeroClouds
-            clouds={mobileClouds}
-            className="absolute inset-x-0 top-0 z-[4] h-[42%] md:hidden"
-          />
           {/* Fade the foreground into the page so the hero runs into the next
               section without a hard edge. Pointer events pass through to the
               flow field. */}

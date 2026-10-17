@@ -18,7 +18,7 @@ type Cloud = {
  */
 export function HeroClouds({ clouds, className }: { clouds: Cloud[]; className: string }) {
   return (
-    <div aria-hidden className={`cloud-layer pointer-events-none overflow-hidden ${className}`}>
+    <div aria-hidden className={`cloud-layer pointer-events-none overflow-x-clip ${className}`}>
       {clouds.map((c, i) => (
         <div
           key={i}
@@ -49,17 +49,18 @@ export function HeroClouds({ clouds, className }: { clouds: Cloud[]; className: 
   );
 }
 
-// Desktop: five clouds in the top 40% of the hero, clear of the headlands.
+// Desktop: five, in the band above the title. Sized by viewport height so
+// they fit the band (14–17vh) on short, wide screens too.
 export const desktopClouds: Cloud[] = [
-  { top: "3%", width: "17vw", duration: 140, phase: 0.55 },
-  { top: "10%", width: "13vw", duration: 95, phase: 0.08 },
-  { top: "22%", width: "12vw", duration: 130, phase: 0.92, flip: true },
-  { top: "38%", width: "10vw", duration: 120, phase: 0.33, opacity: 0.85, flip: true },
-  { top: "52%", width: "8vw", duration: 105, phase: 0.76, opacity: 0.8 },
+  { top: "4%", width: "24vh", duration: 140, phase: 0.55 },
+  { top: "12%", width: "19vh", duration: 95, phase: 0.08 },
+  { top: "30%", width: "15vh", duration: 130, phase: 0.92, flip: true },
+  { top: "20%", width: "16vh", duration: 120, phase: 0.33, opacity: 0.85, flip: true },
+  { top: "44%", width: "12vh", duration: 105, phase: 0.76, opacity: 0.8 },
 ];
 
-// Mobile: two, in the top 42% of the photo — its own sky, above the cliffs.
+// Mobile: two, in the band above the title.
 export const mobileClouds: Cloud[] = [
-  { top: "4%", width: "34vw", duration: 60, phase: 0.18 },
-  { top: "42%", width: "24vw", duration: 78, phase: 0.68, opacity: 0.85, flip: true },
+  { top: "8%", width: "38vw", duration: 60, phase: 0.18 },
+  { top: "40%", width: "26vw", duration: 78, phase: 0.68, opacity: 0.85, flip: true },
 ];

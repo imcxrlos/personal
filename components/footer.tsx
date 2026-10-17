@@ -43,9 +43,13 @@ export function Footer() {
       <div className="wrap flex justify-center pt-2 pb-8">
         <p className="flex items-center gap-3">
           <span className="eyebrow">Current mood</span>
-          {/* Fixed box so the SVG can't shift the layout as it mounts. */}
-          <span aria-hidden className="-mx-3 -my-3 block h-14 w-14 shrink-0">
-            <LiquidPauseAnimation restless={mood === "Dangerous"} />
+          {/* Fixed box so the SVG can't shift the layout as it mounts. The
+              mascot is drawn at 4x and scaled down so browsers rasterise its
+              glow filter at full resolution instead of stair-stepping it. */}
+          <span aria-hidden className="relative -mx-3 -my-3 block h-14 w-14 shrink-0">
+            <span className="absolute left-0 top-0 block h-56 w-56 origin-top-left scale-25">
+              <LiquidPauseAnimation restless={mood === "Dangerous"} />
+            </span>
           </span>
           <span className="text-sm text-[var(--color-ink)]">{mood}</span>
         </p>

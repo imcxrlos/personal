@@ -15,13 +15,20 @@ import gsap from "gsap";
 const TEXT = "CXRLOS · INDEPENDENT ENGINEER · ";
 const SPEED = 24; // px per second along the curve
 
+const FONT_SIZE = 11;
+const TRACKING = 0.14; // em
+
 const textStyle: React.CSSProperties = {
   fontFamily: "var(--font-mono)",
-  fontSize: 11,
+  fontSize: FONT_SIZE,
   fontWeight: 500,
-  letterSpacing: "0.14em",
+  letterSpacing: `${TRACKING}em`,
   whiteSpace: "pre",
 };
+
+// WebKit leaves letter-spacing out of getComputedTextLength (but still draws
+// it), so measure without it and add it back: the same length in every engine.
+const measureStyle: React.CSSProperties = { ...textStyle, letterSpacing: 0 };
 
 // The reference path (m0,88.5 c61.37,0 61.5,-68 126.5,-68 58,0 51,68 123,68
 // in a 250-wide box), stretched to the band: flat, up to a crest just past
@@ -63,7 +70,7 @@ export function CurvedText() {
       const path = pathRef.current;
       const text = measureRef.current;
       if (!live || !path || !text) return;
-      const copy = text.getComputedTextLength();
+      const copy = text.getComputedTextLength() + TEXT.length * TRACKING * FONT_SIZE;
       const step = (copy / path.getTotalLength()) * 100;
       // One copy waiting before the start, plus enough to reach past the end.
       setLoop({ step, copies: Math.ceil(100 / step) + 2, duration: copy / SPEED });
@@ -109,7 +116,7 @@ export function CurvedText() {
         >
           {/* Invisible guide: only defines the curve the text rides on. */}
           <path ref={pathRef} id="footer-curve" fill="none" stroke="none" d={curve(size.w, size.h)} />
-          <text ref={measureRef} style={textStyle} visibility="hidden">
+          <text ref={measureRef} style={measureStyle} visibility="hidden">
             {TEXT}
           </text>
           {loop ? (
