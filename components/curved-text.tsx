@@ -13,22 +13,22 @@ import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import gsap from "gsap";
 
 const TEXT = "CXRLOS · INDEPENDENT ENGINEER · ";
-const HEIGHT = 56;
-const SPEED = 24; // px per second along the curve
+const HEIGHT = 84;
+const SPEED = 34; // px per second along the curve
 
 const textStyle: React.CSSProperties = {
   fontFamily: "var(--font-mono)",
-  fontSize: 11,
+  fontSize: 15,
   fontWeight: 500,
-  letterSpacing: "0.14em",
+  letterSpacing: "0.12em",
   whiteSpace: "pre",
 };
 
 // The reference's shape — flat, up to a crest at the middle, back down — but
-// much flatter: a rise of 14–26px across the full width.
+// much flatter: a rise of 20–34px across the full width.
 function curve(w: number) {
-  const base = HEIGHT - 12;
-  const crest = base - Math.min(26, Math.max(14, w * 0.02));
+  const base = HEIGHT - 16;
+  const crest = base - Math.min(34, Math.max(20, w * 0.025));
   return `M0,${base} C${w * 0.25},${base} ${w * 0.25},${crest} ${w * 0.5},${crest} S${w * 0.75},${base} ${w},${base}`;
 }
 
@@ -107,7 +107,7 @@ export function CurvedText() {
           width={width}
           height={HEIGHT}
           viewBox={`0 0 ${width} ${HEIGHT}`}
-          className="block text-[var(--color-faint)]"
+          className="block text-[var(--color-muted)]"
         >
           {/* Invisible guide: only defines the curve the text rides on. */}
           <path ref={pathRef} id="footer-curve" fill="none" stroke="none" d={curve(width)} />
